@@ -24,6 +24,18 @@ class CharacterSetProfile {
     specialCharactersNonAmbiguous: '!@#\$%^&*()_+-=[]:|;,.<>?',
   );
 
+  /// Default profile that includes a space character.
+  static const CharacterSetProfile defaultWithSpaces = CharacterSetProfile(
+    upperCaseLetters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lowerCaseLetters: 'abcdefghijklmnopqrstuvwxyz',
+    numbers: '0123456789',
+    specialCharacters: '!@#\$%^&*()_+-=[]{}|;:,.<>? ',
+    upperCaseLettersNonAmbiguous: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
+    lowerCaseLettersNonAmbiguous: 'abcdefghijkmnpqrstuvwxyz',
+    numbersNonAmbiguous: '23456789',
+    specialCharactersNonAmbiguous: '!@#\$%^&*()_+-=[]:|;,.<>? ',
+  );
+
   /// The set of uppercase letters used in password generation.
   final String upperCaseLetters;
 
@@ -47,4 +59,29 @@ class CharacterSetProfile {
 
   /// The set of non-ambiguous special characters.
   final String specialCharactersNonAmbiguous;
+
+  CharacterSetProfile copyWith({
+    String? upperCaseLetters,
+    String? lowerCaseLetters,
+    String? numbers,
+    String? specialCharacters,
+    String? upperCaseLettersNonAmbiguous,
+    String? lowerCaseLettersNonAmbiguous,
+    String? numbersNonAmbiguous,
+    String? specialCharactersNonAmbiguous,
+  }) {
+    return CharacterSetProfile(
+      upperCaseLetters: upperCaseLetters ?? this.upperCaseLetters,
+      lowerCaseLetters: lowerCaseLetters ?? this.lowerCaseLetters,
+      numbers: numbers ?? this.numbers,
+      specialCharacters: specialCharacters ?? this.specialCharacters,
+      upperCaseLettersNonAmbiguous:
+          upperCaseLettersNonAmbiguous ?? this.upperCaseLettersNonAmbiguous,
+      lowerCaseLettersNonAmbiguous:
+          lowerCaseLettersNonAmbiguous ?? this.lowerCaseLettersNonAmbiguous,
+      numbersNonAmbiguous: numbersNonAmbiguous ?? this.numbersNonAmbiguous,
+      specialCharactersNonAmbiguous:
+          specialCharactersNonAmbiguous ?? this.specialCharactersNonAmbiguous,
+    );
+  }
 }
