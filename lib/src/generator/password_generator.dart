@@ -8,6 +8,7 @@ import '../model/password_strength.dart';
 import '../normalizer/ipassword_normalizer.dart';
 import '../normalizer/password_normalizer.dart';
 import '../strategy/ipassword_generation_strategy.dart';
+import '../strategy/policy_aware_password_strategy.dart';
 import '../strategy/random_password_strategy.dart';
 import '../strength_estimator/ipassword_strength_estimator.dart';
 import '../strength_estimator/password_strength_estimator.dart';
@@ -38,11 +39,16 @@ class PasswordGenerator implements IPasswordGenerator {
        _strengthEstimator = strengthEstimator ?? PasswordStrengthEstimator(),
        _generationStrategy = generationStrategy ?? RandomPasswordStrategy(),
        _feedbackProvider = feedbackProvider ?? PasswordFeedbackBuilder(),
-       _normalizer = normalizer ?? DefaultPasswordNormalizer();
+       _normalizer = normalizer ?? DefaultPasswordNormalizer() {
+    _policyAwareStrategy = PolicyAwarePasswordStrategy(
+      baseStrategy: _generationStrategy,
+    );
+  }
 
   final IPasswordValidator _validator;
   final IPasswordStrengthEstimator _strengthEstimator;
   final IPasswordGenerationStrategy _generationStrategy;
+  late final IPasswordGenerationStrategy _policyAwareStrategy;
   final IPasswordFeedbackProvider _feedbackProvider;
   final IPasswordNormalizer _normalizer;
   PasswordGeneratorConfig? _config;
@@ -103,7 +109,7 @@ class PasswordGenerator implements IPasswordGenerator {
       excludeAmbiguousChars: excludeAmbiguousChars,
     );
 
-    final password = _generationStrategy.generate(settings);
+    final password = _policyAwareStrategy.generate(settings);
     _lastGeneratedPassword = password;
     return password;
   }
