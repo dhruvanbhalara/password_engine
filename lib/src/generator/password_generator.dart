@@ -1,4 +1,5 @@
 import '../config/password_generator_config.dart';
+import '../model/character_set_profile.dart';
 import '../model/password_generation_exception.dart';
 import '../model/password_strength.dart';
 import '../strategy/ipassword_generation_strategy.dart';
@@ -85,6 +86,8 @@ class PasswordGenerator implements IPasswordGenerator {
       useSpecialChars: useSpecialChars ?? _config?.useSpecialChars ?? true,
       excludeAmbiguousChars:
           excludeAmbiguousChars ?? _config?.excludeAmbiguousChars ?? false,
+      characterSetProfile:
+          _config?.characterSetProfile ?? CharacterSetProfile.defaultProfile,
       maxGenerationAttempts:
           _config?.maxGenerationAttempts ??
           PasswordGeneratorConfig.defaultMaxGenerationAttempts,

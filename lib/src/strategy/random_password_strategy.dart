@@ -1,7 +1,6 @@
 import 'dart:math';
 
 import '../config/password_generator_config.dart';
-import '../constants/password_constants.dart';
 import 'ipassword_generation_strategy.dart';
 
 /// A password generation strategy that creates a random password.
@@ -38,9 +37,15 @@ class RandomPasswordStrategy implements IPasswordGenerationStrategy {
     if (config.length < 12) {
       throw ArgumentError('Password length must be at least 12');
     }
-    final enabledCount = _enabledCharacterSets(config).length;
+    final enabledSets = _enabledCharacterSets(config);
+    final enabledCount = enabledSets.length;
     if (enabledCount == 0) {
       throw ArgumentError('At least one character type must be selected');
+    }
+    for (final charSet in enabledSets) {
+      if (charSet.isEmpty) {
+        throw ArgumentError('Selected character sets must not be empty');
+      }
     }
     if (config.length < enabledCount) {
       throw ArgumentError(
@@ -51,22 +56,23 @@ class RandomPasswordStrategy implements IPasswordGenerationStrategy {
   }
 
   List<String> _enabledCharacterSets(PasswordGeneratorConfig config) {
+    final profile = config.characterSetProfile;
     final upper =
         config.excludeAmbiguousChars
-            ? PasswordConstants.upperCaseLettersNonAmbiguous
-            : PasswordConstants.upperCaseLetters;
+            ? profile.upperCaseLettersNonAmbiguous
+            : profile.upperCaseLetters;
     final lower =
         config.excludeAmbiguousChars
-            ? PasswordConstants.lowerCaseLettersNonAmbiguous
-            : PasswordConstants.lowerCaseLetters;
+            ? profile.lowerCaseLettersNonAmbiguous
+            : profile.lowerCaseLetters;
     final numbers =
         config.excludeAmbiguousChars
-            ? PasswordConstants.numbersNonAmbiguous
-            : PasswordConstants.numbers;
+            ? profile.numbersNonAmbiguous
+            : profile.numbers;
     final special =
         config.excludeAmbiguousChars
-            ? PasswordConstants.specialCharactersNonAmbiguous
-            : PasswordConstants.specialCharacters;
+            ? profile.specialCharactersNonAmbiguous
+            : profile.specialCharacters;
 
     final characterSets = <String>[];
     if (config.useUpperCase) characterSets.add(upper);

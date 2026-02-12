@@ -9,6 +9,7 @@ export 'src/config/password_generator_config.dart';
 export 'src/constants/password_constants.dart';
 export 'src/generator/ipassword_generator.dart';
 export 'src/generator/password_generator.dart';
+export 'src/model/character_set_profile.dart';
 export 'src/model/password_generation_exception.dart';
 export 'src/model/password_strength.dart';
 export 'src/strategy/ipassword_generation_strategy.dart';

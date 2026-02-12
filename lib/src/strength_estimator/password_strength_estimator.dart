@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import '../constants/password_constants.dart';
+import '../model/character_set_profile.dart';
 import '../model/password_strength.dart';
 import 'ipassword_strength_estimator.dart';
 
@@ -10,6 +10,13 @@ import 'ipassword_strength_estimator.dart';
 /// strength of a password. The entropy is calculated based on the length of
 /// the password and the size of the character pool it is drawn from.
 class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
+  /// Creates a [PasswordStrengthEstimator] with an optional character profile.
+  PasswordStrengthEstimator({CharacterSetProfile? characterSetProfile})
+    : _characterSetProfile =
+          characterSetProfile ?? CharacterSetProfile.defaultProfile;
+
+  final CharacterSetProfile _characterSetProfile;
+
   /// Estimates the strength of a given [password].
   ///
   /// The strength is estimated by calculating the entropy of the password.
@@ -38,16 +45,16 @@ class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
 
     int characterPoolSize = 0;
     if (password.contains(RegExp(r'[A-Z]'))) {
-      characterPoolSize += PasswordConstants.upperCaseLetters.length;
+      characterPoolSize += _characterSetProfile.upperCaseLetters.length;
     }
     if (password.contains(RegExp(r'[a-z]'))) {
-      characterPoolSize += PasswordConstants.lowerCaseLetters.length;
+      characterPoolSize += _characterSetProfile.lowerCaseLetters.length;
     }
     if (password.contains(RegExp(r'[0-9]'))) {
-      characterPoolSize += PasswordConstants.numbers.length;
+      characterPoolSize += _characterSetProfile.numbers.length;
     }
     if (password.contains(RegExp(r'[!@#\$%^&*()_+\-=\[\]{}|;:,.<>?]'))) {
-      characterPoolSize += PasswordConstants.specialCharacters.length;
+      characterPoolSize += _characterSetProfile.specialCharacters.length;
     }
 
     if (characterPoolSize == 0) return PasswordStrength.veryWeak;
