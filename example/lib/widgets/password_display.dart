@@ -7,38 +7,64 @@ class PasswordDisplay extends StatelessWidget {
   final String password;
   final PasswordStrength strength;
   final Animation<double> fadeAnimation;
+  final String estimatorLabel;
 
   const PasswordDisplay({
     super.key,
     required this.password,
     required this.strength,
     required this.fadeAnimation,
+    required this.estimatorLabel,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Text(
-              'Generated Password:',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            FadeTransition(
-              opacity: fadeAnimation,
-              child: SelectableText(
-                password,
-                key: const Key('password_display_text'),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ),
-            const SizedBox(height: 16),
-            PasswordStrengthIndicator(strength: strength),
+    return Container(
+      padding: const EdgeInsets.all(18.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          colors: [
+            Theme.of(context).colorScheme.surface,
+            Theme.of(context).colorScheme.surface.withOpacity(0.9),
           ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Generated Password:',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 12),
+          FadeTransition(
+            opacity: fadeAnimation,
+            child: SelectableText(
+              password,
+              key: const Key('password_display_text'),
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          PasswordStrengthIndicator(strength: strength),
+          const SizedBox(height: 10),
+          Text(
+            'Estimator: $estimatorLabel',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
       ),
     );
   }

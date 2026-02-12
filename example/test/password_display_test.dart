@@ -21,6 +21,7 @@ void main() {
               password: 'test-password',
               strength: PasswordStrength.strong,
               fadeAnimation: animation,
+              estimatorLabel: 'Entropy (default)',
             ),
           ),
         ),
@@ -31,6 +32,7 @@ void main() {
       expect(find.text('test-password'), findsOneWidget);
       expect(find.text('Strong'),
           findsOneWidget); // Assuming Strength indicator shows text
+      expect(find.text('Estimator: Entropy (default)'), findsOneWidget);
     });
   });
 }

@@ -34,42 +34,51 @@ class PasswordOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Password Options',
-              style: Theme.of(context).textTheme.titleLarge,
+    return Container(
+      padding: const EdgeInsets.all(18.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        color: Theme.of(context).colorScheme.surface.withOpacity(0.95),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            'Password Options',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
+          const SizedBox(height: 16),
+          InputDecorator(
+            decoration: const InputDecoration(
+              labelText: 'Generation Strategy',
+              border: OutlineInputBorder(),
             ),
-            const SizedBox(height: 16),
-            InputDecorator(
-              decoration: const InputDecoration(
-                labelText: 'Generation Strategy',
-                border: OutlineInputBorder(),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<IPasswordGenerationStrategy>(
-                  key: const Key('strategy_dropdown'),
-                  value: selectedStrategy,
-                  isDense: true,
-                  items: strategies.map((strategy) {
-                    return DropdownMenuItem<IPasswordGenerationStrategy>(
-                      value: strategy,
-                      child: Text(_getStrategyName(strategy)),
-                    );
-                  }).toList(),
-                  onChanged: onStrategyChanged,
-                ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<IPasswordGenerationStrategy>(
+                key: const Key('strategy_dropdown'),
+                value: selectedStrategy,
+                isDense: true,
+                items: strategies.map((strategy) {
+                  return DropdownMenuItem<IPasswordGenerationStrategy>(
+                    value: strategy,
+                    child: Text(_getStrategyName(strategy)),
+                  );
+                }).toList(),
+                onChanged: onStrategyChanged,
               ),
             ),
-            const SizedBox(height: 16),
-            strategyControls,
-          ],
-        ),
+          ),
+          const SizedBox(height: 16),
+          strategyControls,
+        ],
       ),
     );
   }

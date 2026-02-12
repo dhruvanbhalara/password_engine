@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:password_engine/password_engine.dart';
 
 class CustomizeCharacterSetsDialog extends StatefulWidget {
-  final VoidCallback onSave;
+  final CharacterSetProfile initialProfile;
+  final ValueChanged<CharacterSetProfile> onSave;
 
   const CustomizeCharacterSetsDialog({
     super.key,
+    required this.initialProfile,
     required this.onSave,
   });
 
@@ -20,21 +22,37 @@ class _CustomizeCharacterSetsDialogState
   late final TextEditingController _lowerCaseController;
   late final TextEditingController _numbersController;
   late final TextEditingController _specialCharsController;
+  late final TextEditingController _upperCaseNonAmbiguousController;
+  late final TextEditingController _lowerCaseNonAmbiguousController;
+  late final TextEditingController _numbersNonAmbiguousController;
+  late final TextEditingController _specialCharsNonAmbiguousController;
 
   @override
   void initState() {
     super.initState();
     _upperCaseController = TextEditingController(
-      text: PasswordConstants.upperCaseLetters,
+      text: widget.initialProfile.upperCaseLetters,
     );
     _lowerCaseController = TextEditingController(
-      text: PasswordConstants.lowerCaseLetters,
+      text: widget.initialProfile.lowerCaseLetters,
     );
     _numbersController = TextEditingController(
-      text: PasswordConstants.numbers,
+      text: widget.initialProfile.numbers,
     );
     _specialCharsController = TextEditingController(
-      text: PasswordConstants.specialCharacters,
+      text: widget.initialProfile.specialCharacters,
+    );
+    _upperCaseNonAmbiguousController = TextEditingController(
+      text: widget.initialProfile.upperCaseLettersNonAmbiguous,
+    );
+    _lowerCaseNonAmbiguousController = TextEditingController(
+      text: widget.initialProfile.lowerCaseLettersNonAmbiguous,
+    );
+    _numbersNonAmbiguousController = TextEditingController(
+      text: widget.initialProfile.numbersNonAmbiguous,
+    );
+    _specialCharsNonAmbiguousController = TextEditingController(
+      text: widget.initialProfile.specialCharactersNonAmbiguous,
     );
   }
 
@@ -44,6 +62,10 @@ class _CustomizeCharacterSetsDialogState
     _lowerCaseController.dispose();
     _numbersController.dispose();
     _specialCharsController.dispose();
+    _upperCaseNonAmbiguousController.dispose();
+    _lowerCaseNonAmbiguousController.dispose();
+    _numbersNonAmbiguousController.dispose();
+    _specialCharsNonAmbiguousController.dispose();
     super.dispose();
   }
 
@@ -86,21 +108,64 @@ class _CustomizeCharacterSetsDialogState
                 helperText: 'Default: !@#\$%^&*()_+-=[]{}|;:,.<>?',
               ),
             ),
+            const SizedBox(height: 16),
+            Text(
+              'Non-Ambiguous Sets',
+              style: Theme.of(context).textTheme.titleSmall,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _upperCaseNonAmbiguousController,
+              decoration: const InputDecoration(
+                labelText: 'Uppercase (Non-Ambiguous)',
+                helperText: 'Default: A, B, C (no I/O)',
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _lowerCaseNonAmbiguousController,
+              decoration: const InputDecoration(
+                labelText: 'Lowercase (Non-Ambiguous)',
+                helperText: 'Default: a, b, c (no l/o)',
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _numbersNonAmbiguousController,
+              decoration: const InputDecoration(
+                labelText: 'Numbers (Non-Ambiguous)',
+                helperText: 'Default: 2-9',
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _specialCharsNonAmbiguousController,
+              decoration: const InputDecoration(
+                labelText: 'Special (Non-Ambiguous)',
+                helperText: 'Default: !@#\$%^&*()_+-=[]:|;,.<>?',
+              ),
+            ),
           ],
         ),
       ),
       actions: [
         TextButton(
           onPressed: () {
-            PasswordConstants.resetToDefaults();
+            const profile = CharacterSetProfile.defaultProfile;
             setState(() {
-              _upperCaseController.text = PasswordConstants.upperCaseLetters;
-              _lowerCaseController.text = PasswordConstants.lowerCaseLetters;
-              _numbersController.text = PasswordConstants.numbers;
-              _specialCharsController.text =
-                  PasswordConstants.specialCharacters;
+              _upperCaseController.text = profile.upperCaseLetters;
+              _lowerCaseController.text = profile.lowerCaseLetters;
+              _numbersController.text = profile.numbers;
+              _specialCharsController.text = profile.specialCharacters;
+              _upperCaseNonAmbiguousController.text =
+                  profile.upperCaseLettersNonAmbiguous;
+              _lowerCaseNonAmbiguousController.text =
+                  profile.lowerCaseLettersNonAmbiguous;
+              _numbersNonAmbiguousController.text = profile.numbersNonAmbiguous;
+              _specialCharsNonAmbiguousController.text =
+                  profile.specialCharactersNonAmbiguous;
             });
-            widget.onSave();
+            widget.onSave(profile);
             Navigator.of(context).pop();
           },
           child: const Text('Reset to Defaults'),
@@ -111,13 +176,20 @@ class _CustomizeCharacterSetsDialogState
         ),
         FilledButton(
           onPressed: () {
-            PasswordConstants.customize(
-              upperCase: _upperCaseController.text,
-              lowerCase: _lowerCaseController.text,
-              numbersParam: _numbersController.text,
-              special: _specialCharsController.text,
+            final profile = CharacterSetProfile(
+              upperCaseLetters: _upperCaseController.text,
+              lowerCaseLetters: _lowerCaseController.text,
+              numbers: _numbersController.text,
+              specialCharacters: _specialCharsController.text,
+              upperCaseLettersNonAmbiguous:
+                  _upperCaseNonAmbiguousController.text,
+              lowerCaseLettersNonAmbiguous:
+                  _lowerCaseNonAmbiguousController.text,
+              numbersNonAmbiguous: _numbersNonAmbiguousController.text,
+              specialCharactersNonAmbiguous:
+                  _specialCharsNonAmbiguousController.text,
             );
-            widget.onSave();
+            widget.onSave(profile);
             Navigator.of(context).pop();
           },
           child: const Text('Save'),

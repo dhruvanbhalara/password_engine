@@ -8,7 +8,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:password_engine_example/main.dart' show ExampleApp;
 
 void main() {
@@ -22,14 +21,19 @@ void main() {
       await tester.pumpAndSettle(); // Wait for animations
 
       // Verify basic UI elements are present
-      expect(find.text('Password Generator Example'), findsOneWidget);
+      expect(find.text('Password Studio'), findsOneWidget);
       expect(find.text('Generated Password:'), findsOneWidget);
       expect(find.byKey(const Key('password_display_text')), findsOneWidget);
       expect(find.byIcon(Icons.refresh), findsOneWidget);
       expect(find.byIcon(Icons.copy), findsOneWidget);
       expect(find.byKey(const Key('generate_password_button')), findsOneWidget);
+      expect(
+        find.byKey(const Key('generate_strong_password_button')),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('copy_password_button')), findsOneWidget);
       expect(find.text('Password Options'), findsOneWidget);
+      expect(find.byKey(const Key('toggle_zxcvbn')), findsOneWidget);
     });
 
     testWidgets('generates new password on button press', (
