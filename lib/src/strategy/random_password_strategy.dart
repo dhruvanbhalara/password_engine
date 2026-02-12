@@ -15,16 +15,22 @@ class RandomPasswordStrategy implements IPasswordGenerationStrategy {
   String generate(PasswordGeneratorConfig config) {
     validate(config);
 
-    final charSet = _buildCharacterSet(config);
     final random = Random.secure();
-    final buffer = StringBuffer();
+    final enabledSets = _enabledCharacterSets(config);
+    final characters = <String>[];
 
-    for (var i = 0; i < config.length; i++) {
-      final randomIndex = random.nextInt(charSet.length);
-      buffer.write(charSet[randomIndex]);
+    for (final charSet in enabledSets) {
+      characters.add(_randomCharFrom(charSet, random));
     }
 
-    return buffer.toString();
+    final combinedPool = enabledSets.join();
+    final remaining = config.length - characters.length;
+    for (var i = 0; i < remaining; i++) {
+      characters.add(_randomCharFrom(combinedPool, random));
+    }
+
+    characters.shuffle(random);
+    return characters.join();
   }
 
   @override
@@ -32,15 +38,19 @@ class RandomPasswordStrategy implements IPasswordGenerationStrategy {
     if (config.length < 12) {
       throw ArgumentError('Password length must be at least 12');
     }
-    if (!config.useUpperCase &&
-        !config.useLowerCase &&
-        !config.useNumbers &&
-        !config.useSpecialChars) {
+    final enabledCount = _enabledCharacterSets(config).length;
+    if (enabledCount == 0) {
       throw ArgumentError('At least one character type must be selected');
+    }
+    if (config.length < enabledCount) {
+      throw ArgumentError(
+        'Password length must be at least $enabledCount to include all '
+        'selected character types',
+      );
     }
   }
 
-  String _buildCharacterSet(PasswordGeneratorConfig config) {
+  List<String> _enabledCharacterSets(PasswordGeneratorConfig config) {
     final upper =
         config.excludeAmbiguousChars
             ? PasswordConstants.upperCaseLettersNonAmbiguous
@@ -58,12 +68,17 @@ class RandomPasswordStrategy implements IPasswordGenerationStrategy {
             ? PasswordConstants.specialCharactersNonAmbiguous
             : PasswordConstants.specialCharacters;
 
-    String characterPool = '';
-    if (config.useUpperCase) characterPool += upper;
-    if (config.useLowerCase) characterPool += lower;
-    if (config.useNumbers) characterPool += numbers;
-    if (config.useSpecialChars) characterPool += special;
+    final characterSets = <String>[];
+    if (config.useUpperCase) characterSets.add(upper);
+    if (config.useLowerCase) characterSets.add(lower);
+    if (config.useNumbers) characterSets.add(numbers);
+    if (config.useSpecialChars) characterSets.add(special);
 
-    return characterPool;
+    return characterSets;
+  }
+
+  String _randomCharFrom(String charSet, Random random) {
+    final randomIndex = random.nextInt(charSet.length);
+    return charSet[randomIndex];
   }
 }
