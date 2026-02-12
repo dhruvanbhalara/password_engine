@@ -11,24 +11,43 @@ class ConfigAwarePasswordValidator extends PasswordValidator
     String password,
     PasswordGeneratorConfig config,
   ) {
-    if (password.length < 12) return false;
+    final policy = config.policy;
+    final minLength = policy?.minLength ?? 12;
+    if (password.length < minLength) return false;
+    if (policy?.maxLength != null && password.length > policy!.maxLength!) {
+      return false;
+    }
 
-    final sets = CharacterSetResolver.resolve(config);
+    final requireUpper = policy?.requireUppercase ?? config.useUpperCase;
+    final requireLower = policy?.requireLowercase ?? config.useLowerCase;
+    final requireNumber = policy?.requireNumber ?? config.useNumbers;
+    final requireSpecial = policy?.requireSpecial ?? config.useSpecialChars;
 
-    if (config.useUpperCase &&
+    final sets = CharacterSetResolver.resolve(
+      config,
+      useUpperCase: requireUpper,
+      useLowerCase: requireLower,
+      useNumbers: requireNumber,
+      useSpecialChars: requireSpecial,
+    );
+
+    if (requireUpper &&
         !_containsAny(password, sets[CharacterSetType.upper] ?? '')) {
       return false;
     }
-    if (config.useLowerCase &&
+    if (requireLower &&
         !_containsAny(password, sets[CharacterSetType.lower] ?? '')) {
       return false;
     }
-    if (config.useNumbers &&
+    if (requireNumber &&
         !_containsAny(password, sets[CharacterSetType.number] ?? '')) {
       return false;
     }
-    if (config.useSpecialChars &&
-        !_containsAny(password, sets[CharacterSetType.special] ?? '')) {
+    var specialSet = sets[CharacterSetType.special] ?? '';
+    if (policy?.allowSpaces == true && !specialSet.contains(' ')) {
+      specialSet = '$specialSet ';
+    }
+    if (requireSpecial && !_containsAny(password, specialSet)) {
       return false;
     }
     return true;

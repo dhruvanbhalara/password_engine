@@ -1,4 +1,5 @@
 import '../model/character_set_profile.dart';
+import '../model/password_policy.dart';
 
 /// Configuration for password generation.
 ///
@@ -14,6 +15,7 @@ class PasswordGeneratorConfig {
     this.excludeAmbiguousChars = false,
     this.characterSetProfile = CharacterSetProfile.defaultProfile,
     this.maxGenerationAttempts = defaultMaxGenerationAttempts,
+    this.policy,
     this.extra = const {},
   });
 
@@ -43,6 +45,9 @@ class PasswordGeneratorConfig {
 
   /// Maximum attempts when regenerating until a strong password is found.
   final int maxGenerationAttempts;
+
+  /// Optional policy that can guide validation and UI.
+  final PasswordPolicy? policy;
 
   /// Additional configuration parameters for custom strategies.
   final Map<String, dynamic> extra;
