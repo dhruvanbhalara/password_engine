@@ -1,0 +1,17 @@
+name: password_engine_zxcvbn
+description: Optional zxcvbn-based strength estimator for password_engine.
+version: 0.1.0
+homepage: https://github.com/dhruvanbhalara/password_engine
+
+environment:
+  sdk: ^3.7.0
+
+resolution: workspace
+
+dependencies:
+  password_engine: ^1.0.0
+  zxcvbn: ^1.0.0
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^6.0.0

@@ -14,6 +14,7 @@ export 'src/model/password_generation_exception.dart';
 export 'src/model/password_strength.dart';
 export 'src/strategy/ipassword_generation_strategy.dart';
 export 'src/strategy/random_password_strategy.dart';
+export 'src/strength_estimator/ipassword_strength_estimator.dart';
 export 'src/strength_estimator/password_strength_estimator.dart';
 export 'src/validator/ipassword_validator.dart';
 export 'src/validator/password_validator.dart';

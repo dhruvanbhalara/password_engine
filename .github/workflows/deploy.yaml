@@ -64,7 +64,7 @@ jobs:
       - name: Deploy to Netlify
         uses: nwtgck/actions-netlify@v3.0
         with:
-          publish-dir: "./example/build/web"
+          publish-dir: "./packages/password_engine/example/build/web"
           production-branch: master
           production-deploy: true
         env:

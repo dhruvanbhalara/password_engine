@@ -62,7 +62,7 @@ String password = generator.generatePassword();
 
 The library supports custom generation strategies. You can implement `IPasswordGenerationStrategy` to create your own.
 
-**Note**: The `MemorablePasswordStrategy` and `PronounceablePasswordStrategy` live in the package example at `packages/password_engine/example` to serve as learning resources. You can copy them into your project if needed.
+**Note**: The `MemorablePasswordStrategy` and `PronounceablePasswordStrategy` live in the `example` app under `example/` to serve as learning resources. You can copy them into your project if needed.
 
 ```dart
 // Example of using a custom strategy (e.g., from the example app)
@@ -115,7 +115,7 @@ PasswordStrength strength = generator.estimateStrength("myPassword123");
 
 - **Source Code**: [GitHub Repository](https://github.com/dhruvanbhalara/password_engine)
 - **Issues**: [Issue Tracker](https://github.com/dhruvanbhalara/password_engine/issues)
-- **Examples**: Check `packages/password_engine/example` for a full Flutter app demonstrating custom strategies and UI integration.
+- **Examples**: Check the `example` folder for a full Flutter app demonstrating custom strategies and UI integration.
 
 ## License
 

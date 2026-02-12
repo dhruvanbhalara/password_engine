@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:password_engine/password_engine.dart';
+import 'package:password_engine_zxcvbn/password_engine_zxcvbn.dart';
 
 import 'strategies/custom_pin_strategy.dart';
 import 'strategies/memorable_password_strategy.dart';
@@ -51,7 +52,9 @@ class PasswordExample extends StatefulWidget {
 
 class _PasswordExampleState extends State<PasswordExample>
     with SingleTickerProviderStateMixin {
-  PasswordGenerator _generator = PasswordGenerator();
+  PasswordGenerator _generator = PasswordGenerator(
+    strengthEstimator: ZxcvbnStrengthEstimator(),
+  );
   String _password = '';
   PasswordStrength _strength = PasswordStrength.veryWeak;
   late AnimationController _controller;
@@ -322,6 +325,7 @@ class _PasswordExampleState extends State<PasswordExample>
 
                       _generator = PasswordGenerator(
                         generationStrategy: _selectedStrategy,
+                        strengthEstimator: ZxcvbnStrengthEstimator(),
                       );
                       _generator.updateConfig(
                         PasswordGeneratorConfig(
