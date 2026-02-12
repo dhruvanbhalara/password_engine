@@ -5,17 +5,11 @@
 /// It also includes tools for password strength estimation and validation.
 library;
 
-export 'src/config/password_generator_config.dart';
-export 'src/generator/ipassword_generator.dart';
-export 'src/generator/password_generator.dart';
-export 'src/model/character_set_profile.dart';
-export 'src/model/password_generation_exception.dart';
-export 'src/model/password_strength.dart';
-export 'src/strategy/ipassword_generation_strategy.dart';
-export 'src/strategy/random_password_strategy.dart';
-export 'src/strength_estimator/ipassword_strength_estimator.dart';
-export 'src/strength_estimator/password_strength_estimator.dart';
-export 'src/validator/config_aware_password_validator.dart';
-export 'src/validator/iconfig_aware_password_validator.dart';
-export 'src/validator/ipassword_validator.dart';
-export 'src/validator/password_validator.dart';
+export 'src/config/config.dart';
+export 'src/feedback/feedback.dart';
+export 'src/generator/generator.dart';
+export 'src/model/model.dart';
+export 'src/normalizer/normalizer.dart';
+export 'src/strategy/strategy.dart';
+export 'src/strength_estimator/strength_estimator.dart';
+export 'src/validator/validator.dart';
