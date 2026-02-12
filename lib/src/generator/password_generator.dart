@@ -1,8 +1,10 @@
 import '../config/password_generator_config.dart';
+import '../feedback/icontextual_password_feedback_provider.dart';
 import '../feedback/ipassword_feedback_provider.dart';
 import '../feedback/password_feedback_builder.dart';
 import '../model/character_set_profile.dart';
 import '../model/password_feedback.dart';
+import '../model/password_feedback_context.dart';
 import '../model/password_generation_exception.dart';
 import '../model/password_strength.dart';
 import '../normalizer/ipassword_normalizer.dart';
@@ -125,7 +127,19 @@ class PasswordGenerator implements IPasswordGenerator {
 
   @override
   PasswordFeedback estimateFeedback(String password) {
-    final strength = estimateStrength(password);
+    final normalized = _normalizer.normalize(password);
+    final strength = _strengthEstimator.estimatePasswordStrength(normalized);
+
+    if (_feedbackProvider is IContextualPasswordFeedbackProvider) {
+      final context = PasswordFeedbackContext(
+        password: password,
+        normalizedPassword: normalized,
+        strength: strength,
+        config: _resolveConfig(),
+      );
+      return (_feedbackProvider).buildWithContext(context);
+    }
+
     return _feedbackProvider.build(strength);
   }
 

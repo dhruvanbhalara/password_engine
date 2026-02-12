@@ -1,9 +1,10 @@
 import '../model/password_feedback.dart';
+import '../model/password_feedback_context.dart';
 import '../model/password_strength.dart';
-import 'ipassword_feedback_provider.dart';
+import 'icontextual_password_feedback_provider.dart';
 
 /// Default feedback builder based on strength buckets.
-class PasswordFeedbackBuilder implements IPasswordFeedbackProvider {
+class PasswordFeedbackBuilder implements IContextualPasswordFeedbackProvider {
   @override
   PasswordFeedback build(PasswordStrength strength) {
     switch (strength) {
@@ -37,5 +38,10 @@ class PasswordFeedbackBuilder implements IPasswordFeedbackProvider {
       case PasswordStrength.veryStrong:
         return const PasswordFeedback(strength: PasswordStrength.veryStrong);
     }
+  }
+
+  @override
+  PasswordFeedback buildWithContext(PasswordFeedbackContext context) {
+    return build(context.strength);
   }
 }

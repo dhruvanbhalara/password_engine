@@ -95,6 +95,21 @@ void main() {
       expect(feedback.suggestions, isNotEmpty);
     });
 
+    test('estimateFeedback provides context when supported', () {
+      final provider = CapturingFeedbackProvider();
+      final customGenerator = PasswordGenerator(
+        feedbackProvider: provider,
+        normalizer: FunctionNormalizer((value) => value.trim()),
+      );
+      customGenerator.updateConfig(const PasswordGeneratorConfig(length: 14));
+
+      customGenerator.estimateFeedback(' pass ');
+
+      expect(provider.lastContext?.password, ' pass ');
+      expect(provider.lastContext?.normalizedPassword, 'pass');
+      expect(provider.lastContext?.config.length, 14);
+    });
+
     test('normalizer affects estimateStrength', () {
       final customGenerator = PasswordGenerator(
         strengthEstimator: ExactMatchEstimator('normalized'),
@@ -205,4 +220,19 @@ void main() {
       expect(customGenerator.refreshPassword(), isNotEmpty);
     });
   });
+}
+
+class CapturingFeedbackProvider implements IContextualPasswordFeedbackProvider {
+  PasswordFeedbackContext? lastContext;
+
+  @override
+  PasswordFeedback build(PasswordStrength strength) {
+    return PasswordFeedback(strength: strength);
+  }
+
+  @override
+  PasswordFeedback buildWithContext(PasswordFeedbackContext context) {
+    lastContext = context;
+    return PasswordFeedback(strength: context.strength);
+  }
 }
