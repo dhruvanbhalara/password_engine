@@ -7,8 +7,10 @@ abstract class IPasswordGenerator {
   ///
   /// The [length], [useUpperCase], [useLowerCase], [useNumbers], and
   /// [useSpecialChars] parameters allow for on-the-fly customization of the
-  /// generated password. If any of these parameters are not provided, the
-  /// generator should use its default or previously configured settings.
+  /// generated password. The [excludeAmbiguousChars] flag can be used to avoid
+  /// characters that are easily confused (such as 'I', 'l', '1', 'O', '0'). If
+  /// any of these parameters are not provided, the generator should use its
+  /// default or previously configured settings.
   ///
   /// Returns a [String] representing the generated password.
   String generatePassword({
@@ -17,6 +19,7 @@ abstract class IPasswordGenerator {
     bool? useLowerCase,
     bool? useNumbers,
     bool? useSpecialChars,
+    bool? excludeAmbiguousChars,
   });
 
   /// Generates a new password, ensuring it meets strength requirements.
