@@ -10,6 +10,11 @@ This document reviews the library flow and explains how the pieces work together
 
 For installation and basic usage, see the project README.
 
+## Audience
+
+- Library users who want to customize generation, validation, or feedback.
+- Contributors who need a clear mental model of the flow and extension points.
+
 ## Related docs
 
 - [README](../README.md)
@@ -17,15 +22,21 @@ For installation and basic usage, see the project README.
 ## Index
 
 - [Purpose and scope](#purpose-and-scope)
+- [Audience](#audience)
 - [Related docs](#related-docs)
 - [Quick start](#quick-start)
 - [High-level flow](#high-level-flow)
 - [Core pieces](#core-pieces)
 - [Configuration details](#configuration-details)
 - [Validation and estimation](#validation-and-estimation)
+- [Feedback](#feedback)
 - [Retry and errors](#retry-and-errors)
 - [End-to-end behavior summary](#end-to-end-behavior-summary)
 - [Customization guide](#customization-guide)
+- [Policy-aware generation flow](#policy-aware-generation-flow)
+- [Normalized validation flow](#normalized-validation-flow)
+- [Contextual feedback flow](#contextual-feedback-flow)
+- [Passphrase flow](#passphrase-flow)
 
 ## Quick start
 
@@ -55,34 +66,47 @@ If you need policy rules (min/max length, required types, allow spaces), pass a 
 ## High-level flow
 
 ```mermaid
-flowchart TD
-  A[PasswordGenerator API] --> B[PasswordGenerator]
-  B --> C[PasswordGeneratorConfig]
-  B --> D[RandomPasswordStrategy]
-  B --> D2[PassphrasePasswordStrategy]
-  B --> E[PasswordValidator / ConfigAwarePasswordValidator / BlocklistPasswordValidator]
-  B --> F[PasswordStrengthEstimator]
-  B --> N[IPasswordNormalizer]
-  B --> FP[IPasswordFeedbackProvider]
-  FP --> F2[PasswordFeedback]
+flowchart LR
+  subgraph Config
+    CFG[PasswordGeneratorConfig]
+    POL[PasswordPolicy]
+  end
 
-  C --> P[PasswordPolicy]
-  C --> R[CharacterSetResolver]
-  R --> D
-  R --> D2
-  R --> E
-  P --> E
+  subgraph Generation
+    PA[PolicyAwarePasswordStrategy]
+    STRAT[RandomPasswordStrategy / PassphrasePasswordStrategy]
+    GEN[Generated Password]
+  end
 
-  N --> E
-  N --> F
+  subgraph Validation
+    NORM[IPasswordNormalizer]
+    VAL[PasswordValidator / ConfigAwarePasswordValidator / BlocklistPasswordValidator / NormalizedPasswordValidator]
+  end
 
-  D --> G[Generated Password]
-  D2 --> G
-  G --> E
-  G --> F
+  subgraph Estimation
+    EST[PasswordStrengthEstimator]
+  end
 
-  E --> H[refreshPassword loop]
-  H --> G
+  subgraph Feedback
+    CTX[PasswordFeedbackContext]
+    FP[IPasswordFeedbackProvider / IContextualPasswordFeedbackProvider]
+    OUT[PasswordFeedback]
+  end
+
+  CFG --> PA
+  POL --> PA
+  PA --> STRAT --> GEN
+  GEN --> NORM --> VAL
+  GEN --> EST
+
+  CFG --> CTX
+  GEN --> CTX
+  NORM --> CTX
+  EST --> CTX
+  CTX --> FP --> OUT
+
+  VAL --> LOOP[refreshPassword loop]
+  LOOP --> STRAT
 ```
 
 Flow in words:
@@ -101,12 +125,16 @@ Flow in words:
 - `PasswordGeneratorConfig`: your settings (length, allowed character types, ambiguity rules, policy, retry limits).
 - `RandomPasswordStrategy`: default strategy for classic random passwords.
 - `PassphrasePasswordStrategy`: word-based passphrases (length = word count).
+- `PolicyAwarePasswordStrategy`: wraps another strategy and applies policy requirements to generation.
 - `PasswordValidator`: fixed default rules.
 - `ConfigAwarePasswordValidator`: rules based on your config and policy.
 - `BlocklistPasswordValidator`: rejects known bad passwords.
+- `NormalizedPasswordValidator`: normalizes input before delegating validation.
 - `PasswordStrengthEstimator`: estimates strength based on the character pool and length.
 - `IPasswordNormalizer`: optional hook to normalize input before validation/estimation.
-- `IPasswordFeedbackProvider`: optional hook to generate warnings and suggestions.
+- `IPasswordFeedbackProvider`: basic feedback provider interface.
+- `IContextualPasswordFeedbackProvider`: feedback provider interface with access to `PasswordFeedbackContext`.
+- `PasswordFeedbackContext`: context passed to feedback providers (password, normalized password, config, strength).
 - `PasswordPolicy`: optional rules like min/max length or required types.
 - `PasswordFeedback`: warnings and suggestions returned to the user.
 - `PasswordStrength`: strength buckets.
@@ -127,7 +155,14 @@ Flow in words:
 - `PasswordValidator` is fixed-rule validation (minimum length and all required types).
 - `ConfigAwarePasswordValidator` uses your config and optional policy; it only requires the types you enable.
 - `BlocklistPasswordValidator` wraps another validator and rejects passwords from a supplied blocklist.
+- `NormalizedPasswordValidator` applies a normalizer before delegating validation.
 - `PasswordStrengthEstimator` uses entropy: it checks which sets appear in the password and calculates a score from the configured pool size and length.
+
+## Feedback
+
+- `PasswordGenerator.estimateFeedback()` returns `PasswordFeedback`.
+- `IPasswordFeedbackProvider` can build feedback from strength only.
+- `IContextualPasswordFeedbackProvider` can build feedback from `PasswordFeedbackContext`, which includes the original password, normalized password, config, and strength.
 
 ## Retry and errors
 
@@ -144,8 +179,100 @@ Flow in words:
 ## Customization guide
 
 - Want passphrases? Use `PassphrasePasswordStrategy` and set `length` to the number of words.
+- Want policy-aware generation? Use `PolicyAwarePasswordStrategy` or rely on the generator default.
 - Want classic random passwords? Use the default `RandomPasswordStrategy`.
 - Want strict policy rules? Add a `PasswordPolicy` to the config.
 - Want blocklist checks? Wrap your validator with `BlocklistPasswordValidator`.
-- Want custom warnings or tips? Provide your own `IPasswordFeedbackProvider`.
+- Want normalized validation? Use `NormalizedPasswordValidator`.
+- Want custom warnings or tips? Provide your own `IPasswordFeedbackProvider` or `IContextualPasswordFeedbackProvider`.
 - Want Unicode normalization or trimming? Provide your own `IPasswordNormalizer`.
+
+### Policy-aware generation flow
+
+```mermaid
+flowchart LR
+  subgraph Config
+    CFG[Config]
+    POL[Policy]
+  end
+
+  subgraph Generation
+    PA[PolicyAwarePasswordStrategy]
+    STRAT[Base Strategy]
+    GEN[Password]
+  end
+
+  subgraph Validation
+    VAL[Validator]
+  end
+
+  CFG --> PA
+  POL --> PA
+  PA --> STRAT --> GEN --> VAL
+```
+
+### Normalized validation flow
+
+```mermaid
+flowchart LR
+  subgraph Input
+    P[Password]
+  end
+
+  subgraph Normalization
+    N[Normalizer]
+  end
+
+  subgraph Validation
+    NV[NormalizedPasswordValidator]
+    V[Base Validator]
+  end
+
+  P --> N --> NV --> V
+```
+
+### Contextual feedback flow
+
+```mermaid
+flowchart LR
+  subgraph Input
+    P[Password]
+  end
+
+  subgraph Estimation
+    N[Normalizer]
+    S[StrengthEstimator]
+  end
+
+  subgraph Feedback
+    C[PasswordFeedbackContext]
+    CFP[IContextualPasswordFeedbackProvider]
+    F[PasswordFeedback]
+  end
+
+  P --> N --> S
+  P --> C
+  N --> C
+  S --> C
+  C --> CFP --> F
+```
+
+### Passphrase flow
+
+```mermaid
+flowchart LR
+  subgraph Wordlist
+    W[Wordlist]
+  end
+
+  subgraph Generation
+    PS[PassphrasePasswordStrategy]
+    P[Passphrase]
+  end
+
+  subgraph Validation
+    V[Validator]
+  end
+
+  W --> PS --> P --> V
+```
