@@ -35,6 +35,7 @@ void main() {
           findsOneWidget);
       expect(find.widgetWithText(TextField, 'Special (Non-Ambiguous)'),
           findsOneWidget);
+      expect(find.text('Non-Ambiguous Sets'), findsOneWidget);
 
       // Verify buttons
       expect(find.text('Reset to Defaults'), findsOneWidget);

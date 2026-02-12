@@ -9,6 +9,7 @@ void main() {
     testWidgets('renders dropdown and controls', (WidgetTester tester) async {
       final strategies = [
         RandomPasswordStrategy(),
+        PassphrasePasswordStrategy(wordlist: ['alpha', 'beta', 'gamma']),
         MemorablePasswordStrategy(),
       ];
       IPasswordGenerationStrategy selectedStrategy = strategies[0];
@@ -40,6 +41,8 @@ void main() {
 
       await tester.tap(find.text('Random'));
       await tester.pumpAndSettle();
+
+      expect(find.text('Passphrase'), findsWidgets);
 
       await tester.tap(find.text('Memorable').last);
       await tester.pumpAndSettle();

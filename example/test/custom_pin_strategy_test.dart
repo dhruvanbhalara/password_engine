@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:password_engine/password_engine.dart';
-
 import 'package:password_engine_example/strategies/custom_pin_strategy.dart';
 
 void main() {
@@ -59,6 +58,24 @@ void main() {
 
       final password = generator.generatePassword();
       expect(password, startsWith('INT-'));
+    });
+
+    test('policy min length overrides digit count', () {
+      final generator = PasswordGenerator(
+        generationStrategy: CustomPinStrategy(),
+      );
+
+      generator.updateConfig(
+        const PasswordGeneratorConfig(
+          length: 4,
+          policy: PasswordPolicy(minLength: 8),
+          extra: {'prefix': 'PIN'},
+        ),
+      );
+
+      final password = generator.generatePassword();
+      expect(password, startsWith('PIN-'));
+      expect(password.length, equals(4 + 8));
     });
   });
 }

@@ -38,6 +38,7 @@ class CustomPinStrategyControls extends StatelessWidget {
             Expanded(
               flex: 2,
               child: Slider(
+                key: const Key('pin_length_slider'),
                 value: length,
                 min: 4,
                 max: 12,

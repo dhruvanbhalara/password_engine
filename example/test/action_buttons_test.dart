@@ -21,6 +21,13 @@ void main() {
         ),
       );
 
+      expect(find.byKey(const Key('generate_password_button')), findsOneWidget);
+      expect(
+        find.byKey(const Key('generate_strong_password_button')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('copy_password_button')), findsOneWidget);
+
       await tester.tap(find.text('Copy Password'));
       expect(copyCalled, isTrue);
 

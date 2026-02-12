@@ -23,6 +23,7 @@ class PronounceableStrategyControls extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Slider(
+            key: const Key('pronounceable_length_slider'),
             value: length,
             min: 8,
             max: 20,

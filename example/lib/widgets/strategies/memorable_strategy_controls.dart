@@ -23,6 +23,7 @@ class MemorableStrategyControls extends StatelessWidget {
         Expanded(
           flex: 2,
           child: Slider(
+            key: const Key('memorable_length_slider'),
             value: length,
             min: 4,
             max: 8,

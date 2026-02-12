@@ -22,6 +22,8 @@ class PasswordOptions extends StatelessWidget {
   String _getStrategyName(IPasswordGenerationStrategy strategy) {
     if (strategy is RandomPasswordStrategy) {
       return 'Random';
+    } else if (strategy is PassphrasePasswordStrategy) {
+      return 'Passphrase';
     } else if (strategy is MemorablePasswordStrategy) {
       return 'Memorable';
     } else if (strategy is PronounceablePasswordStrategy) {
@@ -38,10 +40,10 @@ class PasswordOptions extends StatelessWidget {
       padding: const EdgeInsets.all(18.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(22),
-        color: Theme.of(context).colorScheme.surface.withOpacity(0.95),
+        color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.95),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 16,
             offset: const Offset(0, 8),
           ),

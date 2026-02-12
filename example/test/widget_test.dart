@@ -33,6 +33,7 @@ void main() {
       );
       expect(find.byKey(const Key('copy_password_button')), findsOneWidget);
       expect(find.text('Password Options'), findsOneWidget);
+      expect(find.text('Policy & Validation'), findsOneWidget);
       expect(find.byKey(const Key('toggle_zxcvbn')), findsOneWidget);
     });
 
@@ -151,7 +152,7 @@ void main() {
       );
     });
 
-    testWidgets('switches strategy without crashing', (
+    testWidgets('switches strategy', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const ExampleApp());
@@ -161,8 +162,12 @@ void main() {
       expect(find.text('Random'), findsOneWidget);
 
       // Open dropdown
-      await tester.tap(find.byKey(const Key('strategy_dropdown')));
+      final strategyDropdown = find.byKey(const Key('strategy_dropdown'));
+      await tester.ensureVisible(strategyDropdown);
+      await tester.tap(strategyDropdown);
       await tester.pumpAndSettle();
+
+      expect(find.text('Passphrase'), findsWidgets);
 
       // Select Memorable strategy
       await tester.tap(find.text('Memorable').last);
@@ -172,7 +177,9 @@ void main() {
       expect(find.text('Memorable'), findsOneWidget);
 
       // Verify slider value was clamped to valid range (max 8 for Memorable)
-      final Slider slider = tester.widget(find.byType(Slider));
+      final Slider slider = tester.widget(
+        find.byKey(const Key('memorable_length_slider')),
+      );
       expect(slider.value, lessThanOrEqualTo(8.0));
       expect(slider.value, greaterThanOrEqualTo(4.0));
 

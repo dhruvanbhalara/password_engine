@@ -20,6 +20,9 @@ void main() {
             body: PasswordDisplay(
               password: 'test-password',
               strength: PasswordStrength.strong,
+              feedback: const PasswordFeedback(
+                strength: PasswordStrength.strong,
+              ),
               fadeAnimation: animation,
               estimatorLabel: 'Entropy (default)',
             ),
@@ -33,6 +36,42 @@ void main() {
       expect(find.text('Strong'),
           findsOneWidget); // Assuming Strength indicator shows text
       expect(find.text('Estimator: Entropy (default)'), findsOneWidget);
+    });
+
+    testWidgets('renders feedback details when provided', (
+      WidgetTester tester,
+    ) async {
+      final animationController = AnimationController(
+        vsync: const TestVSync(),
+        duration: const Duration(milliseconds: 100),
+      );
+      final animation =
+          Tween<double>(begin: 0, end: 1).animate(animationController);
+      animationController.forward();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: PasswordDisplay(
+              password: 'weak-pass',
+              strength: PasswordStrength.weak,
+              feedback: const PasswordFeedback(
+                strength: PasswordStrength.weak,
+                warning: 'Weak password',
+                suggestions: ['Add length', 'Add a number'],
+              ),
+              fadeAnimation: animation,
+              estimatorLabel: 'Entropy (default)',
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Feedback'), findsOneWidget);
+      expect(find.text('Weak password'), findsOneWidget);
+      expect(find.text('Add length'), findsOneWidget);
+      expect(find.text('Add a number'), findsOneWidget);
     });
   });
 }
