@@ -10,6 +10,9 @@
   - Built-in `PasswordStrengthEstimator` to evaluate password entropy and strength.
   - `PasswordValidator` to enforce strong password rules (e.g., minimum 12 characters, mixed types).
   - `refreshPassword` method to ensure generated passwords meet security criteria.
+  - Strength estimation and refresh validation honor custom character sets.
+  - `ConfigAwarePasswordValidator` for config-respecting strength checks.
 - **Configuration**:
   - Comprehensive `PasswordGeneratorConfig` for tailoring output.
   - Option to exclude ambiguous characters.
+  - `CharacterSetProfile` is the single source of truth for character sets.

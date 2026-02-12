@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../config/password_generator_config.dart';
+import '../utils/character_set_resolver.dart';
 import 'ipassword_generation_strategy.dart';
 
 /// A password generation strategy that creates a random password.
@@ -56,31 +57,7 @@ class RandomPasswordStrategy implements IPasswordGenerationStrategy {
   }
 
   List<String> _enabledCharacterSets(PasswordGeneratorConfig config) {
-    final profile = config.characterSetProfile;
-    final upper =
-        config.excludeAmbiguousChars
-            ? profile.upperCaseLettersNonAmbiguous
-            : profile.upperCaseLetters;
-    final lower =
-        config.excludeAmbiguousChars
-            ? profile.lowerCaseLettersNonAmbiguous
-            : profile.lowerCaseLetters;
-    final numbers =
-        config.excludeAmbiguousChars
-            ? profile.numbersNonAmbiguous
-            : profile.numbers;
-    final special =
-        config.excludeAmbiguousChars
-            ? profile.specialCharactersNonAmbiguous
-            : profile.specialCharacters;
-
-    final characterSets = <String>[];
-    if (config.useUpperCase) characterSets.add(upper);
-    if (config.useLowerCase) characterSets.add(lower);
-    if (config.useNumbers) characterSets.add(numbers);
-    if (config.useSpecialChars) characterSets.add(special);
-
-    return characterSets;
+    return CharacterSetResolver.resolve(config).values.toList();
   }
 
   String _randomCharFrom(String charSet, Random random) {

@@ -44,16 +44,16 @@ class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
     if (password.isEmpty) return PasswordStrength.veryWeak;
 
     int characterPoolSize = 0;
-    if (password.contains(RegExp(r'[A-Z]'))) {
+    if (_containsAny(password, _characterSetProfile.upperCaseLetters)) {
       characterPoolSize += _characterSetProfile.upperCaseLetters.length;
     }
-    if (password.contains(RegExp(r'[a-z]'))) {
+    if (_containsAny(password, _characterSetProfile.lowerCaseLetters)) {
       characterPoolSize += _characterSetProfile.lowerCaseLetters.length;
     }
-    if (password.contains(RegExp(r'[0-9]'))) {
+    if (_containsAny(password, _characterSetProfile.numbers)) {
       characterPoolSize += _characterSetProfile.numbers.length;
     }
-    if (password.contains(RegExp(r'[!@#\$%^&*()_+\-=\[\]{}|;:,.<>?]'))) {
+    if (_containsAny(password, _characterSetProfile.specialCharacters)) {
       characterPoolSize += _characterSetProfile.specialCharacters.length;
     }
 
@@ -66,5 +66,12 @@ class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
     if (entropy < 75) return PasswordStrength.medium;
     if (entropy < 128) return PasswordStrength.strong;
     return PasswordStrength.veryStrong;
+  }
+
+  bool _containsAny(String password, String charSet) {
+    for (var i = 0; i < password.length; i++) {
+      if (charSet.contains(password[i])) return true;
+    }
+    return false;
   }
 }

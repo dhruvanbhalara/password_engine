@@ -6,8 +6,9 @@ import '../strategy/ipassword_generation_strategy.dart';
 import '../strategy/random_password_strategy.dart';
 import '../strength_estimator/ipassword_strength_estimator.dart';
 import '../strength_estimator/password_strength_estimator.dart';
+import '../validator/config_aware_password_validator.dart';
+import '../validator/iconfig_aware_password_validator.dart';
 import '../validator/ipassword_validator.dart';
-import '../validator/password_validator.dart';
 import 'ipassword_generator.dart';
 
 /// A concrete implementation of [IPasswordGenerator] for generating secure passwords.
@@ -26,7 +27,7 @@ class PasswordGenerator implements IPasswordGenerator {
     IPasswordValidator? validator,
     IPasswordStrengthEstimator? strengthEstimator,
     IPasswordGenerationStrategy? generationStrategy,
-  }) : _validator = validator ?? PasswordValidator(),
+  }) : _validator = validator ?? ConfigAwarePasswordValidator(),
        _strengthEstimator = strengthEstimator ?? PasswordStrengthEstimator(),
        _generationStrategy = generationStrategy ?? RandomPasswordStrategy();
 
@@ -50,16 +51,19 @@ class PasswordGenerator implements IPasswordGenerator {
 
   @override
   String refreshPassword() {
-    final maxAttempts =
-        _config?.maxGenerationAttempts ??
-        PasswordGeneratorConfig.defaultMaxGenerationAttempts;
+    final config = _resolveConfig();
+    final maxAttempts = config.maxGenerationAttempts;
     if (maxAttempts <= 0) {
       throw ArgumentError('maxGenerationAttempts must be greater than 0');
     }
 
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
       final password = generatePassword();
-      if (_validator.isStrongPassword(password)) {
+      if (_validator is IConfigAwarePasswordValidator) {
+        if ((_validator).isStrongPasswordWithConfig(password, config)) {
+          return password;
+        }
+      } else if (_validator.isStrongPassword(password)) {
         return password;
       }
     }
@@ -78,7 +82,36 @@ class PasswordGenerator implements IPasswordGenerator {
     bool? useSpecialChars,
     bool? excludeAmbiguousChars,
   }) {
-    final settings = PasswordGeneratorConfig(
+    final settings = _resolveConfig(
+      length: length,
+      useUpperCase: useUpperCase,
+      useLowerCase: useLowerCase,
+      useNumbers: useNumbers,
+      useSpecialChars: useSpecialChars,
+      excludeAmbiguousChars: excludeAmbiguousChars,
+    );
+
+    final password = _generationStrategy.generate(settings);
+    _lastGeneratedPassword = password;
+    return password;
+  }
+
+  /// Estimates the strength of a given [password].
+  ///
+  /// Returns a [PasswordStrength] enum value indicating the estimated strength.
+  PasswordStrength estimateStrength(String password) {
+    return _strengthEstimator.estimatePasswordStrength(password);
+  }
+
+  PasswordGeneratorConfig _resolveConfig({
+    int? length,
+    bool? useUpperCase,
+    bool? useLowerCase,
+    bool? useNumbers,
+    bool? useSpecialChars,
+    bool? excludeAmbiguousChars,
+  }) {
+    return PasswordGeneratorConfig(
       length: length ?? _config?.length ?? 12,
       useUpperCase: useUpperCase ?? _config?.useUpperCase ?? true,
       useLowerCase: useLowerCase ?? _config?.useLowerCase ?? true,
@@ -93,16 +126,5 @@ class PasswordGenerator implements IPasswordGenerator {
           PasswordGeneratorConfig.defaultMaxGenerationAttempts,
       extra: _config?.extra ?? const {},
     );
-
-    final password = _generationStrategy.generate(settings);
-    _lastGeneratedPassword = password;
-    return password;
-  }
-
-  /// Estimates the strength of a given [password].
-  ///
-  /// Returns a [PasswordStrength] enum value indicating the estimated strength.
-  PasswordStrength estimateStrength(String password) {
-    return _strengthEstimator.estimatePasswordStrength(password);
   }
 }
