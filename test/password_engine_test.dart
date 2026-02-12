@@ -68,6 +68,30 @@ void main() {
       );
     });
 
+    test('uses a custom character set profile', () {
+      const customProfile = CharacterSetProfile(
+        upperCaseLetters: 'X',
+        lowerCaseLetters: 'y',
+        numbers: '7',
+        specialCharacters: '!',
+        upperCaseLettersNonAmbiguous: 'X',
+        lowerCaseLettersNonAmbiguous: 'y',
+        numbersNonAmbiguous: '7',
+        specialCharactersNonAmbiguous: '!',
+      );
+
+      generator.updateConfig(
+        const PasswordGeneratorConfig(characterSetProfile: customProfile),
+      );
+
+      final password = generator.generatePassword(length: 12);
+      expect(password, matches(RegExp(r'^[Xy7!]+$')));
+      expect(password, contains('X'));
+      expect(password, contains('y'));
+      expect(password, contains('7'));
+      expect(password, contains('!'));
+    });
+
     test('estimates password strength correctly', () {
       expect(generator.estimateStrength('password'), PasswordStrength.veryWeak);
       expect(generator.estimateStrength('password123'), PasswordStrength.weak);
@@ -84,5 +108,35 @@ void main() {
         PasswordStrength.veryStrong,
       );
     });
+
+    test('refreshPassword throws after max attempts', () {
+      final weakGenerator = PasswordGenerator(
+        generationStrategy: _WeakPasswordStrategy(),
+      );
+      weakGenerator.updateConfig(
+        const PasswordGeneratorConfig(maxGenerationAttempts: 3),
+      );
+
+      expect(
+        weakGenerator.refreshPassword,
+        throwsA(
+          isA<PasswordGenerationException>().having(
+            (exception) => exception.code,
+            'code',
+            PasswordGenerationErrorCode.maxAttemptsExceeded,
+          ),
+        ),
+      );
+    });
   });
+}
+
+class _WeakPasswordStrategy implements IPasswordGenerationStrategy {
+  @override
+  String generate(PasswordGeneratorConfig config) {
+    return List.filled(config.length, 'a').join();
+  }
+
+  @override
+  void validate(PasswordGeneratorConfig config) {}
 }

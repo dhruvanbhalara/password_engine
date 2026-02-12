@@ -1,4 +1,6 @@
 import '../config/password_generator_config.dart';
+import '../model/character_set_profile.dart';
+import '../model/password_generation_exception.dart';
 import '../model/password_strength.dart';
 import '../strategy/ipassword_generation_strategy.dart';
 import '../strategy/random_password_strategy.dart';
@@ -48,11 +50,23 @@ class PasswordGenerator implements IPasswordGenerator {
 
   @override
   String refreshPassword() {
-    String password;
-    do {
-      password = generatePassword();
-    } while (!_validator.isStrongPassword(password));
-    return password;
+    final maxAttempts =
+        _config?.maxGenerationAttempts ??
+        PasswordGeneratorConfig.defaultMaxGenerationAttempts;
+    if (maxAttempts <= 0) {
+      throw ArgumentError('maxGenerationAttempts must be greater than 0');
+    }
+
+    for (var attempt = 0; attempt < maxAttempts; attempt++) {
+      final password = generatePassword();
+      if (_validator.isStrongPassword(password)) {
+        return password;
+      }
+    }
+
+    throw PasswordGenerationException.maxAttemptsExceeded(
+      maxAttempts: maxAttempts,
+    );
   }
 
   @override
@@ -72,6 +86,11 @@ class PasswordGenerator implements IPasswordGenerator {
       useSpecialChars: useSpecialChars ?? _config?.useSpecialChars ?? true,
       excludeAmbiguousChars:
           excludeAmbiguousChars ?? _config?.excludeAmbiguousChars ?? false,
+      characterSetProfile:
+          _config?.characterSetProfile ?? CharacterSetProfile.defaultProfile,
+      maxGenerationAttempts:
+          _config?.maxGenerationAttempts ??
+          PasswordGeneratorConfig.defaultMaxGenerationAttempts,
       extra: _config?.extra ?? const {},
     );
 
