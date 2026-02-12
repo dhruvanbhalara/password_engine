@@ -1,7 +1,12 @@
 import '../config/password_generator_config.dart';
+import '../feedback/ipassword_feedback_provider.dart';
+import '../feedback/password_feedback_builder.dart';
 import '../model/character_set_profile.dart';
+import '../model/password_feedback.dart';
 import '../model/password_generation_exception.dart';
 import '../model/password_strength.dart';
+import '../normalizer/ipassword_normalizer.dart';
+import '../normalizer/password_normalizer.dart';
 import '../strategy/ipassword_generation_strategy.dart';
 import '../strategy/random_password_strategy.dart';
 import '../strength_estimator/ipassword_strength_estimator.dart';
@@ -27,13 +32,19 @@ class PasswordGenerator implements IPasswordGenerator {
     IPasswordValidator? validator,
     IPasswordStrengthEstimator? strengthEstimator,
     IPasswordGenerationStrategy? generationStrategy,
+    IPasswordFeedbackProvider? feedbackProvider,
+    IPasswordNormalizer? normalizer,
   }) : _validator = validator ?? ConfigAwarePasswordValidator(),
        _strengthEstimator = strengthEstimator ?? PasswordStrengthEstimator(),
-       _generationStrategy = generationStrategy ?? RandomPasswordStrategy();
+       _generationStrategy = generationStrategy ?? RandomPasswordStrategy(),
+       _feedbackProvider = feedbackProvider ?? PasswordFeedbackBuilder(),
+       _normalizer = normalizer ?? DefaultPasswordNormalizer();
 
   final IPasswordValidator _validator;
   final IPasswordStrengthEstimator _strengthEstimator;
   final IPasswordGenerationStrategy _generationStrategy;
+  final IPasswordFeedbackProvider _feedbackProvider;
+  final IPasswordNormalizer _normalizer;
   PasswordGeneratorConfig? _config;
   String? _lastGeneratedPassword;
 
@@ -59,11 +70,12 @@ class PasswordGenerator implements IPasswordGenerator {
 
     for (var attempt = 0; attempt < maxAttempts; attempt++) {
       final password = generatePassword();
+      final normalized = _normalizer.normalize(password);
       if (_validator is IConfigAwarePasswordValidator) {
-        if ((_validator).isStrongPasswordWithConfig(password, config)) {
+        if ((_validator).isStrongPasswordWithConfig(normalized, config)) {
           return password;
         }
-      } else if (_validator.isStrongPassword(password)) {
+      } else if (_validator.isStrongPassword(normalized)) {
         return password;
       }
     }
@@ -100,7 +112,15 @@ class PasswordGenerator implements IPasswordGenerator {
   ///
   /// Returns a [PasswordStrength] enum value indicating the estimated strength.
   PasswordStrength estimateStrength(String password) {
-    return _strengthEstimator.estimatePasswordStrength(password);
+    return _strengthEstimator.estimatePasswordStrength(
+      _normalizer.normalize(password),
+    );
+  }
+
+  @override
+  PasswordFeedback estimateFeedback(String password) {
+    final strength = estimateStrength(password);
+    return _feedbackProvider.build(strength);
   }
 
   PasswordGeneratorConfig _resolveConfig({
@@ -124,6 +144,7 @@ class PasswordGenerator implements IPasswordGenerator {
       maxGenerationAttempts:
           _config?.maxGenerationAttempts ??
           PasswordGeneratorConfig.defaultMaxGenerationAttempts,
+      policy: _config?.policy,
       extra: _config?.extra ?? const {},
     );
   }
