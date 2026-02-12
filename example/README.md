@@ -11,6 +11,10 @@ strength scoring by calling the zxcvbn package directly.
 - Toggleable zxcvbn strength estimator (direct package usage).
 - Generate a strong password using `refreshPassword()`.
 
+## Docs
+
+- [Flow review and strategy details](doc/example-flow.md)
+
 ## Run
 
 ```bash
