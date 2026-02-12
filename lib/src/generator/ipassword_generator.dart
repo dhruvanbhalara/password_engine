@@ -1,3 +1,5 @@
+import '../model/password_feedback.dart';
+
 /// An abstract interface for password generators.
 ///
 /// This interface defines the contract for classes that generate passwords.
@@ -31,4 +33,7 @@ abstract class IPasswordGenerator {
   ///
   /// Returns a [String] representing the new, strong password.
   String refreshPassword();
+
+  /// Returns user-facing feedback for a given [password].
+  PasswordFeedback estimateFeedback(String password);
 }

@@ -10,8 +10,12 @@ A secure, modular, and extensible password generation library for Dart and Flutt
   - Configure length, character sets, and exclusion of ambiguous characters.
   - Inject custom generation strategies.
   - Inject custom strength estimators.
-- **Extensible**: Easily add new strategies (e.g., memorable words, PINs) without modifying the core library.
-- **Validation**: Built-in validation ensures generated passwords meet your criteria.
+  - Inject custom validators, feedback providers, and normalizers.
+- **Extensible**: Easily add new strategies (e.g., passphrases, PINs) without modifying the core library.
+- **Validation**: Built-in validation with config-aware and policy-aware rules.
+- **Passphrases**: Built-in passphrase strategy using wordlists.
+- **Blocklist Support**: Rejects known weak passwords via blocklist validation.
+- **Feedback**: Optional warnings and suggestions via `estimateFeedback()`.
 
 ## Getting Started
 
@@ -34,7 +38,7 @@ void main() {
   final generator = PasswordGenerator();
 
   // Generate a password
-  String password = generator.generatePassword(); 
+  String password = generator.generatePassword();
   print(password); // e.g., "aB3$kL9@pQ2!"
 }
 ```
@@ -73,6 +77,19 @@ generator.updateConfig(PasswordGeneratorConfig(length: 4)); // 4 words
 String password = generator.generatePassword(); // e.g., "correct-horse-battery-staple"
 ```
 
+### Passphrase Strategy
+
+```dart
+final strategy = PassphrasePasswordStrategy(
+  wordlist: ['alpha', 'beta', 'gamma', 'delta'],
+  separator: '-',
+);
+final generator = PasswordGenerator(generationStrategy: strategy);
+
+generator.updateConfig(const PasswordGeneratorConfig(length: 4)); // 4 words
+final passphrase = generator.generatePassword();
+```
+
 ### Password Strength Estimation
 
 The library includes a default entropy-based strength estimator, but you can inject your own (e.g., one based on zxcvbn).
@@ -93,6 +110,58 @@ final generator = PasswordGenerator(
 PasswordStrength strength = generator.estimateStrength("myPassword123");
 ```
 
+### Password Feedback
+
+```dart
+final generator = PasswordGenerator();
+final feedback = generator.estimateFeedback("password");
+
+print(feedback.strength);
+print(feedback.warning);
+print(feedback.suggestions);
+```
+
+### Password Policies
+
+```dart
+final generator = PasswordGenerator();
+
+generator.updateConfig(
+  const PasswordGeneratorConfig(
+    policy: PasswordPolicy(
+      minLength: 16,
+      requireNumber: true,
+      requireSpecial: true,
+      allowSpaces: true,
+    ),
+  ),
+);
+```
+
+### Blocklist Validation
+
+```dart
+final validator = BlocklistPasswordValidator(
+  blockedPasswords: {'password', '123456'},
+  baseValidator: ConfigAwarePasswordValidator(),
+);
+
+final generator = PasswordGenerator(validator: validator);
+```
+
+### Password Normalizer
+
+```dart
+class TrimPasswordNormalizer implements IPasswordNormalizer {
+  @override
+  String normalize(String password) => password.trim();
+}
+
+final generator = PasswordGenerator(
+  normalizer: TrimPasswordNormalizer(),
+);
+```
+
 ## Configuration Options
 
 | Parameter               | Type | Default | Description                                      |
@@ -103,6 +172,9 @@ PasswordStrength strength = generator.estimateStrength("myPassword123");
 | `useNumbers`            | bool | true    | Include numbers                                  |
 | `useSpecialChars`       | bool | true    | Include special characters                       |
 | `excludeAmbiguousChars` | bool | false   | Exclude characters like 'I', 'l', '1', 'O', '0'  |
+| `characterSetProfile`   | CharacterSetProfile | defaultProfile | Custom character sets for generation             |
+| `maxGenerationAttempts` | int  | 1000    | Max retry count for `refreshPassword()`          |
+| `policy`                | PasswordPolicy? | null | Optional policy rules for validation           |
 | `extra`                 | Map  | {}      | Custom parameters for user-defined strategies    |
 
 ## Security Notes
@@ -115,6 +187,7 @@ PasswordStrength strength = generator.estimateStrength("myPassword123");
 
 - **Source Code**: [GitHub Repository](https://github.com/dhruvanbhalara/password_engine)
 - **Issues**: [Issue Tracker](https://github.com/dhruvanbhalara/password_engine/issues)
+- **Library Flow**: [Library Flow](docs/library-flow.md)
 - **Examples**: Check the `example` folder for a full Flutter app demonstrating custom strategies and UI integration.
 
 ## License
