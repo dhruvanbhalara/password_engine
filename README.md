@@ -11,7 +11,10 @@ A secure, modular, and extensible password generation library for Dart and Flutt
   - Inject custom generation strategies.
   - Inject custom strength estimators.
 - **Extensible**: Easily add new strategies (e.g., memorable words, PINs) without modifying the core library.
-- **Validation**: Built-in validation ensures generated passwords meet your criteria.
+- **Normalizer**: Pluggable `IPasswordNormalizer` interface — inject a custom normalizer for Unicode normalization or whitespace handling.
+- **Validation**: Enforce minimum character counts (e.g., "must have 2 symbols") via `ConfigAwarePasswordValidator`.
+- **Feedback**: Evaluate password strength with user-friendly feedback via `estimateFeedback()`.
+- **Customizable Messages**: Feedback and error strings are generated from a YAML source and can be updated centrally.
 
 ## Getting Started
 
@@ -41,20 +44,20 @@ void main() {
 
 ### Custom Configuration
 
+Use the fluent `PasswordGeneratorConfigBuilder` to create robust configs:
+
 ```dart
+final config = PasswordGeneratorConfig.builder()
+  .length(20)
+  .useUpperCase(true)
+  .useLowerCase(true)
+  .useNumbers(true)
+  .useSpecialChars(true)
+  .excludeAmbiguousChars(true) // e.g., excludes 'I', 'l', '1', 'O', '0'
+  .build();
+
 final generator = PasswordGenerator();
-
-generator.updateConfig(
-  PasswordGeneratorConfig(
-    length: 20,
-    useUpperCase: true,
-    useLowerCase: true,
-    useNumbers: true,
-    useSpecialChars: true,
-    excludeAmbiguousChars: true, // e.g., excludes 'I', 'l', '1', 'O', '0'
-  ),
-);
-
+generator.updateConfig(config);
 String password = generator.generatePassword();
 ```
 
@@ -93,11 +96,37 @@ final generator = PasswordGenerator(
 PasswordStrength strength = generator.estimateStrength("myPassword123");
 ```
 
+### Password Feedback
+
+Evaluate a password and receive user-facing feedback including strength, warnings, and suggestions:
+
+```dart
+final generator = PasswordGenerator();
+
+final feedback = generator.estimateFeedback('myPassword');
+print(feedback.strength.name);    // "veryWeak"
+print(feedback.warning);          // "Weak password"
+print(feedback.suggestions);      // ["Increase length to at least 16", ...]
+```
+
+### Customizing Messages
+
+Feedback and error messages are generated from a YAML source file:
+
+- Source: `lib/l10n/messages.i18n.yaml`
+- Generated output: `lib/l10n/messages.i18n.dart`
+
+This is a single-locale (English) message system. To customize messages, edit the YAML and re-run build_runner:
+
+```bash
+dart run build_runner build
+```
+
 ## Configuration Options
 
 | Parameter               | Type | Default | Description                                      |
 | ----------------------- | ---- | ------- | ------------------------------------------------ |
-| `length`                | int  | 12      | Password length (or word count for some strategies) |
+| `length`                | int  | 16      | Password length (or word count for some strategies) |
 | `useUpperCase`          | bool | true    | Include uppercase letters                        |
 | `useLowerCase`          | bool | true    | Include lowercase letters                        |
 | `useNumbers`            | bool | true    | Include numbers                                  |
@@ -108,8 +137,9 @@ PasswordStrength strength = generator.estimateStrength("myPassword123");
 ## Security Notes
 
 - **CSPRNG**: Uses `Random.secure()` for all random number generation.
-- **Entropy**: The default strength estimator uses Shannon entropy to calculate password strength.
-- **Validation**: Strategies include a `validate` method to ensure configuration parameters are safe before generation.
+- **Normalizer**: The default normalizer is a passthrough. Inject a custom `IPasswordNormalizer` for Unicode normalization or whitespace handling if your application requires it.
+- **Validation Threshold**: The default `PasswordValidator` enforces strictly 16+ characters and requires a mix of 4 character types.
+- **Entropy**: The default strength estimator uses pool-based entropy (`L × log₂(N)`). This assumes uniform random selection and may overestimate strength for pattern-enforced passwords. Inject a custom `IPasswordStrengthEstimator` (e.g., zxcvbn-based) for more accurate estimations.
 
 ## Additional Information
 
