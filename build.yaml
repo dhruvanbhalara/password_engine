@@ -1,0 +1,6 @@
+targets:
+  $default:
+    builders:
+      i18n|yamlBasedBuilder:
+        generate_for:
+          - lib/l10n/**.i18n.yaml
