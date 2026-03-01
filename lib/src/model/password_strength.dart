@@ -17,5 +17,34 @@ enum PasswordStrength {
   strong,
 
   /// Indicates a very strong password that provides a high level of security.
-  veryStrong,
+  veryStrong;
+
+  /// Returns the strength level corresponding to the given entropy.
+  static PasswordStrength fromEntropy(double entropy) => switch (entropy) {
+    < EntropyThresholds.weak => PasswordStrength.veryWeak,
+    < EntropyThresholds.medium => PasswordStrength.weak,
+    < EntropyThresholds.strong => PasswordStrength.medium,
+    < EntropyThresholds.veryStrong => PasswordStrength.strong,
+    _ => PasswordStrength.veryStrong,
+  };
+
+  /// Returns true if this strength is at least as strong as [other].
+  bool isAtLeast(PasswordStrength other) => index >= other.index;
+}
+
+/// Centralized entropy thresholds for password strength classification.
+///
+/// A non-instantiable namespace for threshold constants.
+abstract final class EntropyThresholds {
+  /// Very Weak to Weak transition.
+  static const double weak = 40.0;
+
+  /// Weak to Medium transition.
+  static const double medium = 60.0;
+
+  /// Medium to Strong transition.
+  static const double strong = 75.0;
+
+  /// Strong to Very Strong transition.
+  static const double veryStrong = 128.0;
 }
