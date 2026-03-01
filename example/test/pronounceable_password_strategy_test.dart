@@ -23,5 +23,10 @@ void main() {
       expect(password, isNot(matches(RegExp(r'[aeiou]{3,}'))));
       expect(password, isNot(matches(RegExp(r'[^aeiou]{3,}'))));
     });
+
+    test('throws error if length is less than 4', () {
+      const config = PasswordGeneratorConfig(length: 3);
+      expect(() => strategy.validate(config), throwsArgumentError);
+    });
   });
 }

@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../state/generator_state.dart';
+
 class CustomPinStrategyControls extends StatelessWidget {
-  final double length;
+  final GeneratorState state;
   final TextEditingController prefixController;
-  final ValueChanged<double> onLengthChanged;
-  final ValueChanged<String> onPrefixChanged;
 
   const CustomPinStrategyControls({
     super.key,
-    required this.length,
+    required this.state,
     required this.prefixController,
-    required this.onLengthChanged,
-    required this.onPrefixChanged,
   });
 
   @override
@@ -21,29 +19,29 @@ class CustomPinStrategyControls extends StatelessWidget {
         TextField(
           controller: prefixController,
           decoration: const InputDecoration(
-            labelText: 'Prefix',
-            helperText: 'e.g. USER, PIN, KEY',
+            labelText: 'PIN Prefix',
+            hintText: 'e.g., USER',
+            border: OutlineInputBorder(),
           ),
-          onChanged: onPrefixChanged,
         ),
         const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
               child: Text(
-                'Length: ${length.round()}',
+                'Numeric Length: ${state.length.round()}',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
             Expanded(
               flex: 2,
               child: Slider(
-                value: length,
+                value: state.length,
                 min: 4,
                 max: 12,
                 divisions: 8,
-                label: length.round().toString(),
-                onChanged: onLengthChanged,
+                label: state.length.round().toString(),
+                onChanged: state.setLength,
               ),
             ),
           ],

@@ -7,6 +7,7 @@ void main() {
     testWidgets('triggers callbacks', (WidgetTester tester) async {
       bool copyCalled = false;
       bool generateCalled = false;
+      bool generateStrongCalled = false;
 
       await tester.pumpWidget(
         MaterialApp(
@@ -14,16 +15,27 @@ void main() {
             body: ActionButtons(
               onCopy: () => copyCalled = true,
               onGenerate: () => generateCalled = true,
+              onGenerateStrong: () => generateStrongCalled = true,
             ),
           ),
         ),
       );
+
+      expect(find.byKey(const Key('generate_password_button')), findsOneWidget);
+      expect(
+        find.byKey(const Key('generate_strong_password_button')),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('copy_password_button')), findsOneWidget);
 
       await tester.tap(find.text('Copy Password'));
       expect(copyCalled, isTrue);
 
       await tester.tap(find.text('Generate New Password'));
       expect(generateCalled, isTrue);
+
+      await tester.tap(find.text('Generate Strong Password'));
+      expect(generateStrongCalled, isTrue);
     });
   });
 }

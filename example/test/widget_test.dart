@@ -8,8 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:password_engine_example/main.dart' show ExampleApp;
+import 'package:password_engine_example/theme/app_theme.dart' show ExampleApp;
 
 void main() {
   group('PasswordGeneratorApp', () {
@@ -22,14 +21,20 @@ void main() {
       await tester.pumpAndSettle(); // Wait for animations
 
       // Verify basic UI elements are present
-      expect(find.text('Password Generator Example'), findsOneWidget);
+      expect(find.text('Password Studio'), findsOneWidget);
       expect(find.text('Generated Password:'), findsOneWidget);
       expect(find.byKey(const Key('password_display_text')), findsOneWidget);
       expect(find.byIcon(Icons.refresh), findsOneWidget);
       expect(find.byIcon(Icons.copy), findsOneWidget);
       expect(find.byKey(const Key('generate_password_button')), findsOneWidget);
+      expect(
+        find.byKey(const Key('generate_strong_password_button')),
+        findsOneWidget,
+      );
       expect(find.byKey(const Key('copy_password_button')), findsOneWidget);
       expect(find.text('Password Options'), findsOneWidget);
+      expect(find.text('Enforce Password Policy'), findsOneWidget);
+      expect(find.byKey(const Key('toggle_zxcvbn')), findsOneWidget);
     });
 
     testWidgets('generates new password on button press', (
@@ -110,44 +115,44 @@ void main() {
       final Slider slider = tester.widget(
         find.byKey(const Key('random_length_slider')),
       );
-      expect(slider.value, equals(12.0)); // Default length
+      expect(slider.value, equals(16.0)); // Default length
 
-      // Test character type checkboxes
+      // Test character type filter chips
       expect(
         tester
-            .widget<CheckboxListTile>(
+            .widget<FilterChip>(
               find.byKey(const Key('checkbox_uppercase')),
             )
-            .value,
+            .selected,
         isTrue,
       );
       expect(
         tester
-            .widget<CheckboxListTile>(
+            .widget<FilterChip>(
               find.byKey(const Key('checkbox_lowercase')),
             )
-            .value,
+            .selected,
         isTrue,
       );
       expect(
         tester
-            .widget<CheckboxListTile>(
+            .widget<FilterChip>(
               find.byKey(const Key('checkbox_numbers')),
             )
-            .value,
+            .selected,
         isTrue,
       );
       expect(
         tester
-            .widget<CheckboxListTile>(
+            .widget<FilterChip>(
               find.byKey(const Key('checkbox_special_chars')),
             )
-            .value,
+            .selected,
         isTrue,
       );
     });
 
-    testWidgets('switches strategy without crashing', (
+    testWidgets('switches strategy', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(const ExampleApp());
@@ -157,8 +162,12 @@ void main() {
       expect(find.text('Random'), findsOneWidget);
 
       // Open dropdown
-      await tester.tap(find.byKey(const Key('strategy_dropdown')));
+      final strategyDropdown = find.byKey(const Key('strategy_dropdown'));
+      await tester.ensureVisible(strategyDropdown);
+      await tester.tap(strategyDropdown);
       await tester.pumpAndSettle();
+
+      expect(find.text('Passphrase'), findsWidgets);
 
       // Select Memorable strategy
       await tester.tap(find.text('Memorable').last);
@@ -168,7 +177,9 @@ void main() {
       expect(find.text('Memorable'), findsOneWidget);
 
       // Verify slider value was clamped to valid range (max 8 for Memorable)
-      final Slider slider = tester.widget(find.byType(Slider));
+      final Slider slider = tester.widget(
+        find.byKey(const Key('memorable_length_slider')),
+      );
       expect(slider.value, lessThanOrEqualTo(8.0));
       expect(slider.value, greaterThanOrEqualTo(4.0));
 
@@ -182,7 +193,7 @@ void main() {
       final Slider sliderRandom = tester.widget(
         find.byKey(const Key('random_length_slider')),
       );
-      expect(sliderRandom.value, greaterThanOrEqualTo(12.0));
+      expect(sliderRandom.value, greaterThanOrEqualTo(16.0));
     });
 
     testWidgets('prevents deselecting all character types', (
@@ -220,14 +231,16 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Special Characters is still selected
+      final specialCharsWidget = tester.widget<FilterChip>(specialCharsFinder);
       expect(
-        tester.widget<CheckboxListTile>(specialCharsFinder).value,
+        specialCharsWidget.selected,
         isTrue,
       );
 
       // Verify SnackBar appears
-      expect(find.text('At least one character type must be selected'),
-          findsOneWidget);
+      final snackBarFinder =
+          find.text('At least one character type must be selected');
+      expect(snackBarFinder, findsOneWidget);
     });
   });
 }
