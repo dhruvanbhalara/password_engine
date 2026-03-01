@@ -1,5 +1,5 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:password_engine/password_engine.dart';
+import 'package:test/test.dart';
 
 void main() {
   late PasswordGenerator generator;
@@ -8,10 +8,10 @@ void main() {
     generator = PasswordGenerator();
   });
 
-  group('PasswordGenerator', () {
+  group('$PasswordGenerator', () {
     test('generates password with default settings', () {
       final password = generator.generatePassword();
-      expect(password.length, equals(12)); // Default length is 12
+      expect(password.length, equals(16)); // Default length is 16
     });
 
     test('generates password with custom length', () {
@@ -42,7 +42,7 @@ void main() {
     });
 
     test('throws error for invalid length', () {
-      expect(() => generator.generatePassword(length: 11), throwsArgumentError);
+      expect(() => generator.generatePassword(length: 15), throwsArgumentError);
     });
 
     test('throws error when all character types are disabled', () {
@@ -84,7 +84,7 @@ void main() {
         const PasswordGeneratorConfig(characterSetProfile: customProfile),
       );
 
-      final password = generator.generatePassword(length: 12);
+      final password = generator.generatePassword(length: 16);
       expect(password, matches(RegExp(r'^[Xy7!]+$')));
       expect(password, contains('X'));
       expect(password, contains('y'));
