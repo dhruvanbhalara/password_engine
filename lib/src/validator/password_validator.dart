@@ -1,39 +1,28 @@
+import '../model/password_policy.dart';
+import '../utils/password_string_extensions.dart';
 import 'ipassword_validator.dart';
 
-/// The default implementation of [IPasswordValidator].
-///
-/// This class provides a basic set of validation rules for passwords.
+/// Default [IPasswordValidator] that requires 16+ characters and all four types.
 class PasswordValidator implements IPasswordValidator {
-  /// Determines if a password is strong based on a set of rules.
-  ///
-  /// A password is considered strong if it meets the following criteria:
-  /// - Is at least 12 characters long.
-  /// - Contains at least one uppercase letter.
-  /// - Contains at least one lowercase letter.
-  /// - Contains at least one number.
-  /// - Contains at least one special character.
   @override
   bool isStrongPassword(String password) {
-    if (password.length < 12) return false;
-    if (!containsUpperCase(password)) return false;
-    if (!containsLowerCase(password)) return false;
-    if (!containsNumber(password)) return false;
-    if (!containsSpecialChar(password)) return false;
+    if (password.length < PasswordPolicy.defaultMinLength) return false;
+    if (!password.hasUpperCase) return false;
+    if (!password.hasLowerCase) return false;
+    if (!password.hasNumber) return false;
+    if (!password.hasSpecialChar) return false;
     return true;
   }
 
   @override
-  bool containsUpperCase(String password) =>
-      password.contains(RegExp(r'[A-Z]'));
+  bool containsUpperCase(String password) => password.hasUpperCase;
 
   @override
-  bool containsLowerCase(String password) =>
-      password.contains(RegExp(r'[a-z]'));
+  bool containsLowerCase(String password) => password.hasLowerCase;
 
   @override
-  bool containsNumber(String password) => password.contains(RegExp(r'[0-9]'));
+  bool containsNumber(String password) => password.hasNumber;
 
   @override
-  bool containsSpecialChar(String password) =>
-      password.contains(RegExp(r'[!@#\$%^&*()_+\-=\[\]{}|;:,.<>?]'));
+  bool containsSpecialChar(String password) => password.hasSpecialChar;
 }

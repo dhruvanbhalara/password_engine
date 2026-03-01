@@ -2,69 +2,64 @@ import 'dart:math';
 
 import '../model/character_set_profile.dart';
 import '../model/password_strength.dart';
+import '../utils/password_string_extensions.dart';
 import 'ipassword_strength_estimator.dart';
 
-/// A class for estimating the strength of a password.
+/// Estimates password strength using pool-based entropy (`L × log₂(N)`).
 ///
-/// This class uses a common algorithm based on entropy to estimate the
-/// strength of a password. The entropy is calculated based on the length of
-/// the password and the size of the character pool it is drawn from.
-class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
-  /// Creates a [PasswordStrengthEstimator] with an optional character profile.
+/// May overestimate strength for patterned or dictionary-based passwords.
+/// For more accurate results, inject a custom [IPasswordStrengthEstimator].
+final class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
+  /// Creates a [PasswordStrengthEstimator] with an optional [characterSetProfile].
   PasswordStrengthEstimator({CharacterSetProfile? characterSetProfile})
     : _characterSetProfile =
           characterSetProfile ?? CharacterSetProfile.defaultProfile;
 
   final CharacterSetProfile _characterSetProfile;
 
-  /// Estimates the strength of a given [password].
-  ///
-  /// The strength is estimated by calculating the entropy of the password.
-  /// The higher the entropy, the stronger the password. The entropy is
-  /// calculated using the formula:
-  ///
-  ///   E = L * log2(N)
-  ///
-  /// Where:
-  ///   - E is the entropy.
-  ///   - L is the length of the password.
-  ///   - N is the size of the character pool (e.g., 26 for lowercase letters,
-  ///     52 for uppercase and lowercase, etc.).
-  ///
-  /// The returned [PasswordStrength] is determined by the following entropy
-  /// thresholds:
-  ///
-  ///   - less than 40: [PasswordStrength.veryWeak]
-  ///   - 40 to 59: [PasswordStrength.weak]
-  ///   - 60 to 74: [PasswordStrength.medium]
-  ///   - 75 to 127: [PasswordStrength.strong]
-  ///   - 128 or greater: [PasswordStrength.veryStrong]
+  /// Returns the [PasswordStrength] for the given [password].
   @override
   PasswordStrength estimatePasswordStrength(String password) {
     if (password.isEmpty) return PasswordStrength.veryWeak;
+    final (entropy, _) = estimateDetailedStrength(password);
+    return PasswordStrength.fromEntropy(entropy);
+  }
+
+  /// Returns a record containing entropy and a simplified score [0-4].
+  @override
+  (double entropy, int score) estimateDetailedStrength(String password) {
+    if (password.isEmpty) return (0.0, 0);
+    final entropy = estimateEntropy(password);
+    final strength = PasswordStrength.fromEntropy(entropy);
+    return (entropy, strength.index);
+  }
+
+  @override
+  double estimateEntropy(String password, {bool allowSpaces = false}) {
+    if (password.isEmpty) return 0;
 
     int characterPoolSize = 0;
-    if (password.contains(RegExp(r'[A-Z]'))) {
+    if (password.containsAnyOf(_characterSetProfile.upperCaseLetters)) {
       characterPoolSize += _characterSetProfile.upperCaseLetters.length;
     }
-    if (password.contains(RegExp(r'[a-z]'))) {
+    if (password.containsAnyOf(_characterSetProfile.lowerCaseLetters)) {
       characterPoolSize += _characterSetProfile.lowerCaseLetters.length;
     }
-    if (password.contains(RegExp(r'[0-9]'))) {
+    if (password.containsAnyOf(_characterSetProfile.numbers)) {
       characterPoolSize += _characterSetProfile.numbers.length;
     }
-    if (password.contains(RegExp(r'[!@#\$%^&*()_+\-=\[\]{}|;:,.<>?]'))) {
-      characterPoolSize += _characterSetProfile.specialCharacters.length;
+
+    var specialCharacters = _characterSetProfile.specialCharacters;
+    if (allowSpaces && !specialCharacters.contains(' ')) {
+      specialCharacters = '$specialCharacters ';
     }
 
-    if (characterPoolSize == 0) return PasswordStrength.veryWeak;
+    if (password.containsAnyOf(specialCharacters)) {
+      characterPoolSize += specialCharacters.length;
+    }
 
-    double entropy = password.length * log(characterPoolSize) / log(2);
+    if (characterPoolSize == 0) return 0;
 
-    if (entropy < 40) return PasswordStrength.veryWeak;
-    if (entropy < 60) return PasswordStrength.weak;
-    if (entropy < 75) return PasswordStrength.medium;
-    if (entropy < 128) return PasswordStrength.strong;
-    return PasswordStrength.veryStrong;
+    return password.length * log(characterPoolSize) / log(2);
   }
 }

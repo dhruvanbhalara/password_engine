@@ -1,0 +1,37 @@
+feedback:
+  warning:
+    tooWeak: Too weak
+    weak: Weak password
+    medium: Could be stronger
+    policyNotMet: Does not meet policy requirements
+    policyPartiallyMet: Policy requirements partially met
+    almostThere: Almost there
+  suggestion:
+    useLonger: Use a longer password
+    addWordPhrase: Add another word or phrase
+    mixCharacterTypes: Mix more character types
+    addLengthOrWord: Add length or another word
+    avoidCommonPatterns: Avoid common patterns
+    increaseLengthSlightly: Increase length slightly
+    addWordOrSymbol: Add another word or symbol
+    increaseLengthMin(int min): "Increase length to at least $min"
+    addUppercase: Add an uppercase letter
+    addLowercase: Add a lowercase letter
+    addNumber: Add a number
+    addSpecial: Add a special character
+    useMoreVariety: Use more variety for higher security
+error:
+  maxAttemptsExceeded(int maxAttempts): "Unable to generate a strong password within $maxAttempts attempts."
+  maxGenerationAttemptsPositive: maxGenerationAttempts must be greater than 0
+  policyMinExceedsMax: PasswordPolicy minLength cannot exceed maxLength
+  passwordLengthMin(int min): "Password length must be at least $min"
+  atLeastOneCharType: At least one character type must be selected
+  selectedCharSetsNotEmpty: Selected character sets must not be empty
+  wordlistEmpty: Wordlist must not be empty
+  wordlistHasEmptyWords: Wordlist must not contain empty words
+  wordCountPositive: Word count must be greater than 0
+  wordCountExceedsWordlist: Word count exceeds wordlist size when duplicates are disabled
+  characterPoolEmpty: Character pool cannot be empty
+  lengthNonNegative: Length must be non-negative
+  invalidFormat: invalid format
+  invalidLength: invalid length

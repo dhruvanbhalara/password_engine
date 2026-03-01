@@ -12,6 +12,23 @@ class CharacterSetProfile {
     required this.specialCharactersNonAmbiguous,
   });
 
+  /// Creates a [CharacterSetProfile] from a map.
+  factory CharacterSetProfile.fromMap(Map<String, dynamic> map) {
+    return CharacterSetProfile(
+      upperCaseLetters: map['upperCaseLetters'] as String,
+      lowerCaseLetters: map['lowerCaseLetters'] as String,
+      numbers: map['numbers'] as String,
+      specialCharacters: map['specialCharacters'] as String,
+      upperCaseLettersNonAmbiguous:
+          map['upperCaseLettersNonAmbiguous'] as String,
+      lowerCaseLettersNonAmbiguous:
+          map['lowerCaseLettersNonAmbiguous'] as String,
+      numbersNonAmbiguous: map['numbersNonAmbiguous'] as String,
+      specialCharactersNonAmbiguous:
+          map['specialCharactersNonAmbiguous'] as String,
+    );
+  }
+
   /// Default character set profile.
   static const CharacterSetProfile defaultProfile = CharacterSetProfile(
     upperCaseLetters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
@@ -22,6 +39,18 @@ class CharacterSetProfile {
     lowerCaseLettersNonAmbiguous: 'abcdefghijkmnpqrstuvwxyz',
     numbersNonAmbiguous: '23456789',
     specialCharactersNonAmbiguous: '!@#\$%^&*()_+-=[]:|;,.<>?',
+  );
+
+  /// Default profile that includes a space in the special character sets.
+  static const CharacterSetProfile defaultWithSpaces = CharacterSetProfile(
+    upperCaseLetters: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lowerCaseLetters: 'abcdefghijklmnopqrstuvwxyz',
+    numbers: '0123456789',
+    specialCharacters: '!@#\$%^&*()_+-=[]{}|;:,.<>? ',
+    upperCaseLettersNonAmbiguous: 'ABCDEFGHJKLMNPQRSTUVWXYZ',
+    lowerCaseLettersNonAmbiguous: 'abcdefghijkmnpqrstuvwxyz',
+    numbersNonAmbiguous: '23456789',
+    specialCharactersNonAmbiguous: '!@#\$%^&*()_+-=[]:|;,.<>? ',
   );
 
   /// The set of uppercase letters used in password generation.
@@ -47,4 +76,44 @@ class CharacterSetProfile {
 
   /// The set of non-ambiguous special characters.
   final String specialCharactersNonAmbiguous;
+
+  /// Returns a copy of this profile with the given fields replaced.
+  CharacterSetProfile copyWith({
+    String? upperCaseLetters,
+    String? lowerCaseLetters,
+    String? numbers,
+    String? specialCharacters,
+    String? upperCaseLettersNonAmbiguous,
+    String? lowerCaseLettersNonAmbiguous,
+    String? numbersNonAmbiguous,
+    String? specialCharactersNonAmbiguous,
+  }) {
+    return CharacterSetProfile(
+      upperCaseLetters: upperCaseLetters ?? this.upperCaseLetters,
+      lowerCaseLetters: lowerCaseLetters ?? this.lowerCaseLetters,
+      numbers: numbers ?? this.numbers,
+      specialCharacters: specialCharacters ?? this.specialCharacters,
+      upperCaseLettersNonAmbiguous:
+          upperCaseLettersNonAmbiguous ?? this.upperCaseLettersNonAmbiguous,
+      lowerCaseLettersNonAmbiguous:
+          lowerCaseLettersNonAmbiguous ?? this.lowerCaseLettersNonAmbiguous,
+      numbersNonAmbiguous: numbersNonAmbiguous ?? this.numbersNonAmbiguous,
+      specialCharactersNonAmbiguous:
+          specialCharactersNonAmbiguous ?? this.specialCharactersNonAmbiguous,
+    );
+  }
+
+  /// Converts this profile to a map.
+  Map<String, dynamic> toMap() {
+    return {
+      'upperCaseLetters': upperCaseLetters,
+      'lowerCaseLetters': lowerCaseLetters,
+      'numbers': numbers,
+      'specialCharacters': specialCharacters,
+      'upperCaseLettersNonAmbiguous': upperCaseLettersNonAmbiguous,
+      'lowerCaseLettersNonAmbiguous': lowerCaseLettersNonAmbiguous,
+      'numbersNonAmbiguous': numbersNonAmbiguous,
+      'specialCharactersNonAmbiguous': specialCharactersNonAmbiguous,
+    };
+  }
 }
