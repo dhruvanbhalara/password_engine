@@ -1,12 +1,13 @@
 import '../model/password_strength.dart';
 
-/// An abstract interface for password strength estimators.
-///
-/// This interface defines the contract for classes that estimate the strength of a password.
-/// Implement this interface to create custom password strength estimation logic.
-abstract class IPasswordStrengthEstimator {
-  /// Estimates the strength of a given [password].
-  ///
-  /// Returns a [PasswordStrength] enum value indicating the estimated strength.
+/// Interface for password strength estimators.
+abstract interface class IPasswordStrengthEstimator {
+  /// Returns the estimated [PasswordStrength] of the given [password].
   PasswordStrength estimatePasswordStrength(String password);
+
+  /// Returns a record of (entropy, score) for the given [password].
+  (double entropy, int score) estimateDetailedStrength(String password);
+
+  /// Returns the estimated entropy in bits for the given [password].
+  double estimateEntropy(String password, {bool allowSpaces = false});
 }
