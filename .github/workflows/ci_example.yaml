@@ -1,0 +1,26 @@
+name: Example CI
+
+on:
+  push:
+    paths:
+      - "example/**"
+      - ".github/workflows/ci_example.yaml"
+      - ".github/workflows/reusable_verify.yaml"
+  pull_request:
+    paths:
+      - "example/**"
+      - ".github/workflows/ci_example.yaml"
+      - ".github/workflows/reusable_verify.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    uses: ./.github/workflows/reusable_verify.yaml
+    with:
+      working-directory: example
+      sdk: flutter
+    secrets: inherit
