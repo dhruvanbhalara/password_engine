@@ -1,35 +1,39 @@
 import 'package:flutter/material.dart';
 
+import '../../state/generator_state.dart';
+
 class PronounceableStrategyControls extends StatelessWidget {
-  final double length;
-  final ValueChanged<double> onLengthChanged;
+  final GeneratorState state;
 
   const PronounceableStrategyControls({
     super.key,
-    required this.length,
-    required this.onLengthChanged,
+    required this.state,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        Expanded(
-          child: Text(
-            'Length: ${length.round()}',
-            style: Theme.of(context).textTheme.bodyLarge,
-          ),
-        ),
-        Expanded(
-          flex: 2,
-          child: Slider(
-            value: length,
-            min: 8,
-            max: 20,
-            divisions: 12,
-            label: length.round().toString(),
-            onChanged: onLengthChanged,
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                'Length: ${state.length.round()}',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Slider(
+                value: state.length,
+                min: 8,
+                max: 20,
+                divisions: 12,
+                label: state.length.round().toString(),
+                onChanged: state.setLength,
+              ),
+            ),
+          ],
         ),
       ],
     );

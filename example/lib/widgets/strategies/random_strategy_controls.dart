@@ -1,33 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../state/generator_state.dart';
+
 class RandomStrategyControls extends StatelessWidget {
-  final double length;
-  final bool useUpperCase;
-  final bool useLowerCase;
-  final bool useNumbers;
-  final bool useSpecialChars;
-  final bool excludeAmbiguousChars;
-  final ValueChanged<double> onLengthChanged;
-  final ValueChanged<bool?> onUpperCaseChanged;
-  final ValueChanged<bool?> onLowerCaseChanged;
-  final ValueChanged<bool?> onNumbersChanged;
-  final ValueChanged<bool?> onSpecialCharsChanged;
-  final ValueChanged<bool?> onExcludeAmbiguousCharsChanged;
+  final GeneratorState state;
 
   const RandomStrategyControls({
     super.key,
-    required this.length,
-    required this.useUpperCase,
-    required this.useLowerCase,
-    required this.useNumbers,
-    required this.useSpecialChars,
-    required this.excludeAmbiguousChars,
-    required this.onLengthChanged,
-    required this.onUpperCaseChanged,
-    required this.onLowerCaseChanged,
-    required this.onNumbersChanged,
-    required this.onSpecialCharsChanged,
-    required this.onExcludeAmbiguousCharsChanged,
+    required this.state,
   });
 
   @override
@@ -38,7 +18,7 @@ class RandomStrategyControls extends StatelessWidget {
           children: [
             Expanded(
               child: Text(
-                'Length: ${length.round()}',
+                'Length: ${state.length.round()}',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
             ),
@@ -46,48 +26,52 @@ class RandomStrategyControls extends StatelessWidget {
               flex: 2,
               child: Slider(
                 key: const Key('random_length_slider'),
-                value: length,
-                min: 12,
-                max: 32,
-                divisions: 20,
-                label: length.round().toString(),
-                onChanged: onLengthChanged,
+                value: state.length,
+                min: 16,
+                max: 128,
+                divisions: 112,
+                label: state.length.round().toString(),
+                onChanged: state.setLength,
               ),
             ),
           ],
         ),
-        CheckboxListTile(
-          key: const Key('checkbox_uppercase'),
-          title: const Text('Uppercase Letters (A-Z)'),
-          value: useUpperCase,
-          onChanged: onUpperCaseChanged,
+        const SizedBox(height: 16),
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          children: [
+            _buildFilterChip(context, 'Uppercase', state.useUpperCase,
+                CharacterType.upper, const Key('checkbox_uppercase')),
+            _buildFilterChip(context, 'Lowercase', state.useLowerCase,
+                CharacterType.lower, const Key('checkbox_lowercase')),
+            _buildFilterChip(context, 'Numbers', state.useNumbers,
+                CharacterType.numbers, const Key('checkbox_numbers')),
+            _buildFilterChip(context, 'Symbols', state.useSpecialChars,
+                CharacterType.special, const Key('checkbox_special_chars')),
+          ],
         ),
-        CheckboxListTile(
-          key: const Key('checkbox_lowercase'),
-          title: const Text('Lowercase Letters (a-z)'),
-          value: useLowerCase,
-          onChanged: onLowerCaseChanged,
-        ),
-        CheckboxListTile(
-          key: const Key('checkbox_numbers'),
-          title: const Text('Numbers (0-9)'),
-          value: useNumbers,
-          onChanged: onNumbersChanged,
-        ),
-        CheckboxListTile(
-          key: const Key('checkbox_special_chars'),
-          title: const Text('Special Characters (!@#\$...)'),
-          value: useSpecialChars,
-          onChanged: onSpecialCharsChanged,
-        ),
-        CheckboxListTile(
-          key: const Key('checkbox_exclude_ambiguous'),
+        const SizedBox(height: 16),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
           title: const Text('Exclude Ambiguous Characters'),
-          subtitle: const Text('(e.g. I, l, 1, O, 0)'),
-          value: excludeAmbiguousChars,
-          onChanged: onExcludeAmbiguousCharsChanged,
+          subtitle: const Text('e.g. i, l, 1, L, o, 0, O'),
+          value: state.excludeAmbiguousChars,
+          onChanged: state.setExcludeAmbiguousChars,
         ),
       ],
+    );
+  }
+
+  Widget _buildFilterChip(BuildContext context, String label, bool selected,
+      CharacterType type, Key key) {
+    return FilterChip(
+      key: key,
+      label: Text(label),
+      selected: selected,
+      onSelected: (val) => state.setUseCase(val, type),
+      checkmarkColor: Theme.of(context).colorScheme.onPrimary,
+      selectedColor: Theme.of(context).colorScheme.primary,
     );
   }
 }
