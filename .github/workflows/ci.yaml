@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+      - "example/**"
+      - ".github/workflows/ci.yaml"
+      - ".github/workflows/reusable_verify.yaml"
+  pull_request:
+    paths:
+      - "lib/**"
+      - "test/**"
+      - "pubspec.yaml"
+      - "example/**"
+      - ".github/workflows/ci.yaml"
+      - ".github/workflows/reusable_verify.yaml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      lib: ${{ steps.filter.outputs.lib }}
+      example: ${{ steps.filter.outputs.example }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lib:
+              - 'lib/**'
+              - 'test/**'
+              - 'pubspec.yaml'
+              - '.github/workflows/**'
+            example:
+              - 'example/**'
+              - '.github/workflows/**'
+
+  verify_lib:
+    needs: changes
+    if: ${{ needs.changes.outputs.lib == 'true' }}
+    uses: ./.github/workflows/reusable_verify.yaml
+    with:
+      working-directory: .
+      sdk: flutter
+    secrets: inherit
+
+  verify_example:
+    needs: changes
+    if: ${{ needs.changes.outputs.example == 'true' }}
+    uses: ./.github/workflows/reusable_verify.yaml
+    with:
+      working-directory: example
+      sdk: flutter
+    secrets: inherit
