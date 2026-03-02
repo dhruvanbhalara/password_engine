@@ -2,21 +2,20 @@ name: CI
 
 on:
   push:
+    branches: [main]
     paths:
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
       - "example/**"
-      - ".github/workflows/ci.yaml"
-      - ".github/workflows/reusable_verify.yaml"
+      - ".github/workflows/**"
   pull_request:
     paths:
       - "lib/**"
       - "test/**"
       - "pubspec.yaml"
       - "example/**"
-      - ".github/workflows/ci.yaml"
-      - ".github/workflows/reusable_verify.yaml"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 concurrency:
@@ -53,7 +52,6 @@ jobs:
     uses: ./.github/workflows/reusable_verify.yaml
     with:
       working-directory: .
-      sdk: flutter
     secrets: inherit
 
   verify_example:
@@ -62,5 +60,4 @@ jobs:
     uses: ./.github/workflows/reusable_verify.yaml
     with:
       working-directory: example
-      sdk: flutter
     secrets: inherit

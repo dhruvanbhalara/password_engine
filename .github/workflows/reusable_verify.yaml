@@ -8,11 +8,7 @@ on:
         required: false
         default: "."
         type: string
-      sdk:
-        description: 'Which SDK to use: "dart" or "flutter"'
-        required: false
-        default: "dart"
-        type: string
+
       run-tests:
         description: "Whether to run tests"
         required: false
@@ -40,14 +36,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dart Environment
-        if: ${{ inputs.sdk == 'dart' }}
-        uses: ./.github/actions/setup-dart
-        with:
-          working-directory: ${{ inputs.working-directory }}
-
       - name: Setup Flutter Environment
-        if: ${{ inputs.sdk == 'flutter' }}
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ secrets.FLUTTER_VERSION }}
@@ -67,21 +56,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dart Environment
-        if: ${{ inputs.sdk == 'dart' }}
-        uses: ./.github/actions/setup-dart
-        with:
-          working-directory: ${{ inputs.working-directory }}
-
       - name: Setup Flutter Environment
-        if: ${{ inputs.sdk == 'flutter' }}
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ secrets.FLUTTER_VERSION }}
           working-directory: ${{ inputs.working-directory }}
 
       - name: Analyze code
-        run: dart analyze --fatal-infos .
+        run: flutter analyze --fatal-infos .
         working-directory: ${{ inputs.working-directory }}
 
   test:
@@ -94,19 +76,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Dart Environment
-        if: ${{ inputs.sdk == 'dart' }}
-        uses: ./.github/actions/setup-dart
-        with:
-          working-directory: ${{ inputs.working-directory }}
-
       - name: Setup Flutter Environment
-        if: ${{ inputs.sdk == 'flutter' }}
         uses: ./.github/actions/setup-flutter
         with:
           flutter-version: ${{ secrets.FLUTTER_VERSION }}
           working-directory: ${{ inputs.working-directory }}
 
       - name: Run tests
-        run: ${{ inputs.sdk }} test
+        run: flutter test
         working-directory: ${{ inputs.working-directory }}
