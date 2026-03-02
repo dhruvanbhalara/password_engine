@@ -1,0 +1,39 @@
+name: Setup Flutter Environment
+description: |
+  Composite action to setup Flutter SDK and restore pub cache.
+
+inputs:
+  flutter-version:
+    description: "The Flutter version to use (e.g., 3.19.0)."
+    required: true
+  working-directory:
+    description: "The directory where the pub get command should be run"
+    required: false
+    default: "."
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+        flutter-version: ${{ inputs.flutter-version }}
+        cache: true # Caches Flutter SDK
+
+    - name: Cache Pub dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.pub-cache
+        key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-
+
+    - name: Disable Flutter analytics
+      shell: bash
+      run: flutter config --no-analytics
+
+    - name: Get dependencies
+      shell: bash
+      run: flutter pub get
+      working-directory: ${{ inputs.working-directory }}

@@ -30,41 +30,83 @@ on:
         type: boolean
 
 jobs:
-  verify:
+  format:
+    if: ${{ inputs.format }}
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Dart
+      - name: Setup Dart Environment
         if: ${{ inputs.sdk == 'dart' }}
-        uses: dart-lang/setup-dart@v1
+        uses: ./.github/actions/setup-dart
         with:
-          sdk: stable
+          working-directory: ${{ inputs.working-directory }}
 
-      - name: Set up Flutter
+      - name: Setup Flutter Environment
         if: ${{ inputs.sdk == 'flutter' }}
-        uses: subosito/flutter-action@v2
+        uses: ./.github/actions/setup-flutter
         with:
-          channel: stable
           flutter-version: ${{ secrets.FLUTTER_VERSION }}
-          cache: true
-
-      - name: Install dependencies
-        run: ${{ inputs.sdk }} pub get
-        working-directory: ${{ inputs.working-directory }}
+          working-directory: ${{ inputs.working-directory }}
 
       - name: Check formatting
-        if: ${{ inputs.format }}
         run: dart format --set-exit-if-changed .
         working-directory: ${{ inputs.working-directory }}
 
+  analyze:
+    if: ${{ inputs.analyze }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart Environment
+        if: ${{ inputs.sdk == 'dart' }}
+        uses: ./.github/actions/setup-dart
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Setup Flutter Environment
+        if: ${{ inputs.sdk == 'flutter' }}
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ secrets.FLUTTER_VERSION }}
+          working-directory: ${{ inputs.working-directory }}
+
       - name: Analyze code
-        if: ${{ inputs.analyze }}
         run: dart analyze --fatal-infos .
         working-directory: ${{ inputs.working-directory }}
 
+  test:
+    if: ${{ inputs.run-tests }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart Environment
+        if: ${{ inputs.sdk == 'dart' }}
+        uses: ./.github/actions/setup-dart
+        with:
+          working-directory: ${{ inputs.working-directory }}
+
+      - name: Setup Flutter Environment
+        if: ${{ inputs.sdk == 'flutter' }}
+        uses: ./.github/actions/setup-flutter
+        with:
+          flutter-version: ${{ secrets.FLUTTER_VERSION }}
+          working-directory: ${{ inputs.working-directory }}
+
       - name: Run tests
-        if: ${{ inputs.run-tests }}
         run: ${{ inputs.sdk }} test
         working-directory: ${{ inputs.working-directory }}
