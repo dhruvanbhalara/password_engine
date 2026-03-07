@@ -8,9 +8,10 @@ void main() {
   group('PolicyValidationMixin', () {
     final validator = TestValidator();
 
-    test('satisfiesPolicy returns true for null policy', () {
+    test('satisfiesPolicy evaluates base config even for null policy', () {
       const config = PasswordGeneratorConfig(policy: null);
-      expect(validator.satisfiesPolicy('any', config), isTrue);
+      expect(validator.satisfiesPolicy('AnyValidPassword123!', config), isTrue);
+      expect(validator.satisfiesPolicy('short', config), isFalse);
     });
 
     test('satisfiesPolicy validates minLength', () {

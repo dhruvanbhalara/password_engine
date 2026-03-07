@@ -34,7 +34,7 @@ final class PassphrasePasswordStrategy implements IPasswordGenerationStrategy {
   String generate(PasswordGeneratorConfig config) {
     validate(config);
 
-    final wordCount = config.length;
+    final wordCount = config.extra['wordCount'] as int? ?? config.length;
     final random = _random;
     final words = <String>[];
 
@@ -63,10 +63,11 @@ final class PassphrasePasswordStrategy implements IPasswordGenerationStrategy {
     if (_wordlist.any((word) => word.isEmpty)) {
       throw ArgumentError(messages.error.wordlistHasEmptyWords);
     }
-    if (config.length <= 0) {
+    final wordCount = config.extra['wordCount'] as int? ?? config.length;
+    if (wordCount <= 0) {
       throw ArgumentError(messages.error.wordCountPositive);
     }
-    if (!allowDuplicates && config.length > _uniqueWordlist.length) {
+    if (!allowDuplicates && wordCount > _uniqueWordlist.length) {
       throw ArgumentError(messages.error.wordCountExceedsWordlist);
     }
   }

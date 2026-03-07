@@ -1,3 +1,5 @@
+import 'package:collection/collection.dart';
+
 import 'password_strength.dart';
 
 /// User-facing feedback for password strength results.
@@ -50,5 +52,32 @@ class PasswordFeedback {
       'estimatedEntropy': estimatedEntropy,
       'score': score,
     };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    final collectionEquals = const DeepCollectionEquality().equals;
+
+    return other is PasswordFeedback &&
+        other.strength == strength &&
+        other.warning == warning &&
+        collectionEquals(other.suggestions, suggestions) &&
+        other.estimatedEntropy == estimatedEntropy &&
+        other.score == score;
+  }
+
+  @override
+  int get hashCode {
+    return strength.hashCode ^
+        warning.hashCode ^
+        const DeepCollectionEquality().hash(suggestions) ^
+        estimatedEntropy.hashCode ^
+        score.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'PasswordFeedback(strength: $strength, warning: $warning, suggestions: $suggestions, estimatedEntropy: $estimatedEntropy, score: $score)';
   }
 }

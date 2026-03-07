@@ -79,27 +79,33 @@ class PasswordPolicy {
   /// Returns a copy of this policy with the given fields replaced.
   PasswordPolicy copyWith({
     int? minLength,
-    int? maxLength,
+    Object? maxLength = _sentinel,
     bool? requireUppercase,
     bool? requireLowercase,
     bool? requireNumber,
     bool? requireSpecial,
     bool? allowSpaces,
     bool? allowUnicode,
-    PasswordStrength? strengthThreshold,
-    int? scoreThreshold,
+    Object? strengthThreshold = _sentinel,
+    Object? scoreThreshold = _sentinel,
   }) {
     return PasswordPolicy(
       minLength: minLength ?? this.minLength,
-      maxLength: maxLength ?? this.maxLength,
+      maxLength: maxLength == _sentinel ? this.maxLength : maxLength as int?,
       requireUppercase: requireUppercase ?? this.requireUppercase,
       requireLowercase: requireLowercase ?? this.requireLowercase,
       requireNumber: requireNumber ?? this.requireNumber,
       requireSpecial: requireSpecial ?? this.requireSpecial,
       allowSpaces: allowSpaces ?? this.allowSpaces,
       allowUnicode: allowUnicode ?? this.allowUnicode,
-      strengthThreshold: strengthThreshold ?? this.strengthThreshold,
-      scoreThreshold: scoreThreshold ?? this.scoreThreshold,
+      strengthThreshold:
+          strengthThreshold == _sentinel
+              ? this.strengthThreshold
+              : strengthThreshold as PasswordStrength?,
+      scoreThreshold:
+          scoreThreshold == _sentinel
+              ? this.scoreThreshold
+              : scoreThreshold as int?,
     );
   }
 
@@ -123,6 +129,42 @@ class PasswordPolicy {
       'strengthThreshold': strengthThreshold?.index,
       'scoreThreshold': scoreThreshold,
     };
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is PasswordPolicy &&
+        other.minLength == minLength &&
+        other.maxLength == maxLength &&
+        other.requireUppercase == requireUppercase &&
+        other.requireLowercase == requireLowercase &&
+        other.requireNumber == requireNumber &&
+        other.requireSpecial == requireSpecial &&
+        other.allowSpaces == allowSpaces &&
+        other.allowUnicode == allowUnicode &&
+        other.strengthThreshold == strengthThreshold &&
+        other.scoreThreshold == scoreThreshold;
+  }
+
+  @override
+  int get hashCode {
+    return minLength.hashCode ^
+        maxLength.hashCode ^
+        requireUppercase.hashCode ^
+        requireLowercase.hashCode ^
+        requireNumber.hashCode ^
+        requireSpecial.hashCode ^
+        allowSpaces.hashCode ^
+        allowUnicode.hashCode ^
+        strengthThreshold.hashCode ^
+        scoreThreshold.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'PasswordPolicy(minLength: $minLength, maxLength: $maxLength, requireUppercase: $requireUppercase, requireLowercase: $requireLowercase, requireNumber: $requireNumber, requireSpecial: $requireSpecial, allowSpaces: $allowSpaces, allowUnicode: $allowUnicode, strengthThreshold: $strengthThreshold, scoreThreshold: $scoreThreshold)';
   }
 }
 
@@ -240,3 +282,5 @@ extension PasswordPolicyX on PasswordPolicy {
     return length;
   }
 }
+
+const Object _sentinel = Object();

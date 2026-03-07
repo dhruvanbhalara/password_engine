@@ -29,9 +29,8 @@ extension PasswordStringX on String {
   /// Uses a [Set] for O(1) lookup per character instead of O(m) string search.
   bool containsAnyOf(String charSet) {
     if (charSet.isEmpty) return false;
-    final pool = charSet.split('').toSet();
     for (var i = 0; i < length; i++) {
-      if (pool.contains(this[i])) return true;
+      if (charSet.contains(this[i])) return true;
     }
     return false;
   }

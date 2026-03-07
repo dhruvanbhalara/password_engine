@@ -16,6 +16,7 @@ environment:
   sdk: ^3.7.0
 
 dependencies:
+  collection: ^1.19.1
   i18n: ^4.2.5
 
 dev_dependencies:

@@ -41,7 +41,8 @@ final class RandomPasswordStrategy implements IPasswordGenerationStrategy {
   @override
   void validate(PasswordGeneratorConfig config) {
     final messages = const Messages();
-    final minLength = PasswordPolicy.defaultMinLength;
+    final minLength =
+        config.policy?.minLength ?? PasswordPolicy.defaultMinLength;
     if (config.length < minLength) {
       throw ArgumentError(messages.error.passwordLengthMin(minLength));
     }

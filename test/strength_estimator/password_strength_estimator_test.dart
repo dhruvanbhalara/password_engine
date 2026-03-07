@@ -17,13 +17,17 @@ void main() {
     });
 
     test(
-      'password with characters not in any pool is very weak (pool size 0)',
+      'password with characters not in any pool uses fallback pool size',
       () {
+        expect(
+          estimator.estimatePasswordStrength('\u{1F60A}'),
+          equals(PasswordStrength.veryWeak),
+        );
         expect(
           estimator.estimatePasswordStrength(
             '\u{1F60A}\u{1F60A}\u{1F60A}\u{1F60A}\u{1F60A}',
           ),
-          equals(PasswordStrength.veryWeak),
+          equals(PasswordStrength.veryStrong),
         );
       },
     );
