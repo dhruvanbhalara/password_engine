@@ -58,7 +58,11 @@ final class PasswordStrengthEstimator implements IPasswordStrengthEstimator {
       characterPoolSize += specialCharacters.length;
     }
 
-    if (characterPoolSize == 0) return 0;
+    if (characterPoolSize == 0) {
+      // Fallback for passwords consisting entirely of unmapped characters (e.g., Unicode).
+      // We assume a large arbitrary pool size to give credit for these characters.
+      characterPoolSize = 100000;
+    }
 
     return password.length * log(characterPoolSize) / log(2);
   }

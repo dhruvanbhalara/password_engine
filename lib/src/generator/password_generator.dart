@@ -112,6 +112,7 @@ final class PasswordGenerator implements IPasswordGenerator {
   }
 
   /// Estimates the [PasswordStrength] of the given [password].
+  @override
   PasswordStrength estimateStrength(String password) {
     return _strengthEstimator.estimatePasswordStrength(
       _normalizer.normalize(password),

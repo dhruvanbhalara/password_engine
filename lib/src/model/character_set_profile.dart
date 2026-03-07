@@ -116,4 +116,36 @@ class CharacterSetProfile {
       'specialCharactersNonAmbiguous': specialCharactersNonAmbiguous,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is CharacterSetProfile &&
+        other.upperCaseLetters == upperCaseLetters &&
+        other.lowerCaseLetters == lowerCaseLetters &&
+        other.numbers == numbers &&
+        other.specialCharacters == specialCharacters &&
+        other.upperCaseLettersNonAmbiguous == upperCaseLettersNonAmbiguous &&
+        other.lowerCaseLettersNonAmbiguous == lowerCaseLettersNonAmbiguous &&
+        other.numbersNonAmbiguous == numbersNonAmbiguous &&
+        other.specialCharactersNonAmbiguous == specialCharactersNonAmbiguous;
+  }
+
+  @override
+  int get hashCode {
+    return upperCaseLetters.hashCode ^
+        lowerCaseLetters.hashCode ^
+        numbers.hashCode ^
+        specialCharacters.hashCode ^
+        upperCaseLettersNonAmbiguous.hashCode ^
+        lowerCaseLettersNonAmbiguous.hashCode ^
+        numbersNonAmbiguous.hashCode ^
+        specialCharactersNonAmbiguous.hashCode;
+  }
+
+  @override
+  String toString() {
+    return 'CharacterSetProfile(upperCaseLetters: $upperCaseLetters, lowerCaseLetters: $lowerCaseLetters, numbers: $numbers, specialCharacters: $specialCharacters, upperCaseLettersNonAmbiguous: $upperCaseLettersNonAmbiguous, lowerCaseLettersNonAmbiguous: $lowerCaseLettersNonAmbiguous, numbersNonAmbiguous: $numbersNonAmbiguous, specialCharactersNonAmbiguous: $specialCharactersNonAmbiguous)';
+  }
 }
