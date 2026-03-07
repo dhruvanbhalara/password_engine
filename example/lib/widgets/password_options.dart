@@ -40,23 +40,28 @@ class PasswordOptions extends StatelessWidget {
               labelText: 'Generation Strategy',
               border: OutlineInputBorder(),
             ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<AppStrategyConfig>(
-                key: const Key('strategy_dropdown'),
-                value: state.selectedStrategyConfig,
-                isDense: true,
-                items: state.strategies.map((config) {
-                  return DropdownMenuItem<AppStrategyConfig>(
-                    value: config,
-                    child: Text(config.name),
-                  );
-                }).toList(),
-                onChanged: (config) {
-                  if (config != null) {
-                    state.setStrategyConfig(config);
-                  }
-                },
-              ),
+            child: ListenableBuilder(
+              listenable: state,
+              builder: (context, _) {
+                return DropdownButtonHideUnderline(
+                  child: DropdownButton<AppStrategyConfig>(
+                    key: const Key('strategy_dropdown'),
+                    value: state.selectedStrategyConfig,
+                    isDense: true,
+                    items: state.strategies.map((config) {
+                      return DropdownMenuItem<AppStrategyConfig>(
+                        value: config,
+                        child: Text(config.name),
+                      );
+                    }).toList(),
+                    onChanged: (config) {
+                      if (config != null) {
+                        state.setStrategyConfig(config);
+                      }
+                    },
+                  ),
+                );
+              },
             ),
           ),
           /* strategyControls logic has moved down to StrategyControlsPanel invoked from main.dart explicitly, so this widget only holds the dropdown */

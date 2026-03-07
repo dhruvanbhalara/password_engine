@@ -121,7 +121,10 @@ void main() {
       expect(
         tester
             .widget<FilterChip>(
-              find.byKey(const Key('checkbox_uppercase')),
+              find.descendant(
+                of: find.byKey(const Key('checkbox_uppercase')),
+                matching: find.byType(FilterChip),
+              ),
             )
             .selected,
         isTrue,
@@ -129,7 +132,10 @@ void main() {
       expect(
         tester
             .widget<FilterChip>(
-              find.byKey(const Key('checkbox_lowercase')),
+              find.descendant(
+                of: find.byKey(const Key('checkbox_lowercase')),
+                matching: find.byType(FilterChip),
+              ),
             )
             .selected,
         isTrue,
@@ -137,7 +143,10 @@ void main() {
       expect(
         tester
             .widget<FilterChip>(
-              find.byKey(const Key('checkbox_numbers')),
+              find.descendant(
+                of: find.byKey(const Key('checkbox_numbers')),
+                matching: find.byType(FilterChip),
+              ),
             )
             .selected,
         isTrue,
@@ -145,7 +154,10 @@ void main() {
       expect(
         tester
             .widget<FilterChip>(
-              find.byKey(const Key('checkbox_special_chars')),
+              find.descendant(
+                of: find.byKey(const Key('checkbox_special_chars')),
+                matching: find.byType(FilterChip),
+              ),
             )
             .selected,
         isTrue,
@@ -189,11 +201,11 @@ void main() {
       await tester.tap(find.text('Random').last);
       await tester.pumpAndSettle();
 
-      // Verify slider value was clamped to valid range (min 12 for Random)
+      // Verify slider value was clamped to valid range (min 12 for Random under default policy)
       final Slider sliderRandom = tester.widget(
         find.byKey(const Key('random_length_slider')),
       );
-      expect(sliderRandom.value, greaterThanOrEqualTo(16.0));
+      expect(sliderRandom.value, greaterThanOrEqualTo(12.0));
     });
 
     testWidgets('prevents deselecting all character types', (
@@ -231,7 +243,12 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Special Characters is still selected
-      final specialCharsWidget = tester.widget<FilterChip>(specialCharsFinder);
+      final specialCharsWidget = tester.widget<FilterChip>(
+        find.descendant(
+          of: specialCharsFinder,
+          matching: find.byType(FilterChip),
+        ),
+      );
       expect(
         specialCharsWidget.selected,
         isTrue,

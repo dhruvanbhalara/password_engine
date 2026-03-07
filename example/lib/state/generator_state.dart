@@ -37,8 +37,9 @@ class GeneratorState extends ChangeNotifier {
         _selectedStrategyConfig.name != 'Pronounceable') {
       return baseMin; // Word/PIN formats ignore strict char count policies visually.
     }
-    if (_useCorporatePolicy){
-      return CustomCorporatePolicy.strictPolicy.minLength.toDouble();}
+    if (_useCorporatePolicy) {
+      return CustomCorporatePolicy.strictPolicy.minLength.toDouble();
+    }
     if (_usePolicy && _policyMinLength > baseMin) return _policyMinLength;
     return baseMin;
   }

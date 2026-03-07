@@ -123,75 +123,60 @@ class _PasswordExampleState extends State<PasswordExample>
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(18.0),
-                child: ListenableBuilder(
-                  listenable: _state,
-                  builder: (context, _) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        AnimatedSection(
-                          index: 0,
-                          child: HeaderCard(
-                            onCustomize: _showCustomizeDialog,
-                            currentThemeMode: widget.currentThemeMode,
-                            onThemeToggle: widget.onThemeToggle,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        AnimatedSection(
-                          index: 1,
-                          child: PasswordDisplay(
-                            password: _state.isPasswordVisible
-                                ? _state.password.value
-                                : _state.password.masked,
-                            strength: _state.strength,
-                            feedback: _state.feedback,
-                            fadeAnimation: _fadeAnimation,
-                            estimatorLabel: _state.useZxcvbn
-                                ? 'zxcvbn (direct)'
-                                : 'Entropy (default)',
-                            isVisible: _state.isPasswordVisible,
-                            onVisibilityToggle: _state.togglePasswordVisibility,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        AnimatedSection(
-                          index: 2,
-                          child: ActionButtons(
-                            onGenerate: _state.generatePassword,
-                            onGenerateStrong: _state.generateStrongPassword,
-                            onCopy: _handleCopyPassword,
-                          ),
-                        ),
-                        const SizedBox(height: 24),
-                        AnimatedSection(
-                          index: 3,
-                          child: PasswordOptions(state: _state),
-                        ),
-                        const SizedBox(height: 16),
-                        AnimatedSection(
-                          index: 4,
-                          child: StrengthEstimatorCard(
-                            useZxcvbn: _state.useZxcvbn,
-                            onChanged: _state.toggleZxcvbn,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        AnimatedSection(
-                          index: 5,
-                          child: StrategyControlsPanel(
-                            state: _state,
-                            prefixController: _prefixController,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        AnimatedSection(
-                          index: 6,
-                          child: PolicyControlsCard(state: _state),
-                        ),
-                      ],
-                    );
-                  },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    AnimatedSection(
+                      index: 0,
+                      child: HeaderCard(
+                        onCustomize: _showCustomizeDialog,
+                        currentThemeMode: widget.currentThemeMode,
+                        onThemeToggle: widget.onThemeToggle,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    AnimatedSection(
+                      index: 1,
+                      child: PasswordDisplay(
+                        state: _state,
+                        fadeAnimation: _fadeAnimation,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedSection(
+                      index: 2,
+                      child: ActionButtons(
+                        onGenerate: _state.generatePassword,
+                        onGenerateStrong: _state.generateStrongPassword,
+                        onCopy: _handleCopyPassword,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    AnimatedSection(
+                      index: 3,
+                      child: PasswordOptions(state: _state),
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedSection(
+                      index: 4,
+                      child: StrengthEstimatorCard(
+                        state: _state,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedSection(
+                      index: 5,
+                      child: StrategyControlsPanel(
+                        state: _state,
+                        prefixController: _prefixController,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    AnimatedSection(
+                      index: 6,
+                      child: PolicyControlsCard(state: _state),
+                    ),
+                  ],
                 ),
               ),
             ),

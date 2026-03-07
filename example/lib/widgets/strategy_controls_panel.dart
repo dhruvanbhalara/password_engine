@@ -35,14 +35,19 @@ class StrategyControlsPanel extends StatelessWidget {
             style: Theme.of(context).textTheme.titleLarge,
           ),
           const SizedBox(height: 16),
-          state.selectedStrategyConfig.controlBuilder
-                  ?.call(state, prefixController) ??
-              const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text('No additional configuration required.'),
-                ),
-              ),
+          ListenableBuilder(
+            listenable: state,
+            builder: (context, _) {
+              return state.selectedStrategyConfig.controlBuilder
+                      ?.call(state, prefixController) ??
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('No additional configuration required.'),
+                    ),
+                  );
+            },
+          ),
         ],
       ),
     );
