@@ -35,7 +35,8 @@ void main() {
       await tester.tap(find.text('Memorable').last);
       await tester.pumpAndSettle();
 
-      expect(state.selectedStrategy, isA<MemorablePasswordStrategy>());
+      expect(state.selectedStrategyConfig.strategy,
+          isA<MemorablePasswordStrategy>());
       expect(find.text('Memorable'), findsOneWidget);
     });
   });

@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:password_engine/password_engine.dart';
 
-import '../constants/words.dart';
 import '../policies/custom_corporate_policy.dart';
-import '../strategies/custom_pin_strategy.dart';
-import '../strategies/memorable_password_strategy.dart';
-import '../strategies/pronounceable_password_strategy.dart';
+import '../strategies/app_strategy_config.dart';
 import '../strength_estimators/zxcvbn_strength_estimator.dart';
 
 enum CharacterType { upper, lower, numbers, special, spaces }
@@ -33,6 +30,34 @@ class GeneratorState extends ChangeNotifier {
   // Generator Config State
   double _length = 16;
   double get length => _length;
+
+  double get sliderMinLength {
+    final baseMin = _selectedStrategyConfig.minLength;
+    if (_selectedStrategyConfig.name != 'Random' &&
+        _selectedStrategyConfig.name != 'Pronounceable') {
+      return baseMin; // Word/PIN formats ignore strict char count policies visually.
+    }
+    if (_useCorporatePolicy){
+      return CustomCorporatePolicy.strictPolicy.minLength.toDouble();}
+    if (_usePolicy && _policyMinLength > baseMin) return _policyMinLength;
+    return baseMin;
+  }
+
+  double get sliderMaxLength {
+    final baseMax = _selectedStrategyConfig.maxLength;
+    if (_selectedStrategyConfig.name != 'Random' &&
+        _selectedStrategyConfig.name != 'Pronounceable') {
+      return baseMax;
+    }
+    if (_useCorporatePolicy) return baseMax;
+    if (_usePolicy && _usePolicyMaxLength && _policyMaxLength < baseMax) {
+      // Ensure max isn't physically lower than the current min bounds
+      return _policyMaxLength < sliderMinLength
+          ? sliderMinLength
+          : _policyMaxLength;
+    }
+    return baseMax;
+  }
 
   bool _useUpperCase = true;
   bool get useUpperCase => _useUpperCase;
@@ -103,22 +128,16 @@ class GeneratorState extends ChangeNotifier {
   static const _LowercasePasswordNormalizer _blocklistNormalizer =
       _LowercasePasswordNormalizer();
 
-  late final List<IPasswordGenerationStrategy> strategies;
-  late IPasswordGenerationStrategy _selectedStrategy;
-  IPasswordGenerationStrategy get selectedStrategy => _selectedStrategy;
+  late final List<AppStrategyConfig> strategies;
+  late AppStrategyConfig _selectedStrategyConfig;
+  AppStrategyConfig get selectedStrategyConfig => _selectedStrategyConfig;
 
   String _prefix = 'USER';
   String get prefix => _prefix;
 
   GeneratorState() {
-    strategies = [
-      RandomPasswordStrategy(),
-      PassphrasePasswordStrategy(wordlist: words, separator: ' '),
-      MemorablePasswordStrategy(),
-      PronounceablePasswordStrategy(),
-      CustomPinStrategy(),
-    ];
-    _selectedStrategy = strategies[0];
+    strategies = availableAppStrategies;
+    _selectedStrategyConfig = strategies[0];
     generatePassword();
   }
 
@@ -192,7 +211,7 @@ class GeneratorState extends ChangeNotifier {
 
     _generator = PasswordGenerator(
       validator: baseValidator,
-      generationStrategy: _selectedStrategy,
+      generationStrategy: _selectedStrategyConfig.strategy,
       strengthEstimator: _useZxcvbn
           ? ExampleZxcvbnStrengthEstimator(userInputs: _collectUserInputs())
           : null,
@@ -212,20 +231,26 @@ class GeneratorState extends ChangeNotifier {
         ? _withSpaces(_characterSetProfile)
         : _characterSetProfile;
 
-    _generator.updateConfig(
-      PasswordGeneratorConfigBuilder()
-          .length(_length.round())
-          .useUpperCase(_useUpperCase)
-          .useLowerCase(_useLowerCase)
-          .useNumbers(_useNumbers)
-          .useSpecialChars(_useSpecialChars)
-          .excludeAmbiguousChars(_excludeAmbiguousChars)
-          .characterSetProfile(profile)
-          .maxGenerationAttempts(_maxGenerationAttempts)
-          .policy(policy)
-          .extra('prefix', _prefix)
-          .build(),
-    );
+    final configBuilder = PasswordGeneratorConfigBuilder()
+        .length(_length.round())
+        .useUpperCase(_useUpperCase)
+        .useLowerCase(_useLowerCase)
+        .useNumbers(_useNumbers)
+        .useSpecialChars(_useSpecialChars)
+        .excludeAmbiguousChars(_excludeAmbiguousChars)
+        .characterSetProfile(profile)
+        .maxGenerationAttempts(_maxGenerationAttempts)
+        .policy(policy)
+        .extra('prefix', _prefix);
+
+    if (_selectedStrategyConfig.name == 'Passphrase' ||
+        _selectedStrategyConfig.name == 'Memorable') {
+      configBuilder.extra('wordCount', _length.round());
+    } else if (_selectedStrategyConfig.name == 'Custom PIN') {
+      configBuilder.extra('numericLength', _length.round());
+    }
+
+    _generator.updateConfig(configBuilder.build());
   }
 
   PasswordPolicy? _buildPolicy() {
@@ -276,29 +301,30 @@ class GeneratorState extends ChangeNotifier {
     generatePassword();
   }
 
-  void setStrategy(IPasswordGenerationStrategy strategy) {
-    _selectedStrategy = strategy;
-    if (_selectedStrategy is RandomPasswordStrategy) {
-      if (_length < 16) _length = 16;
-      if (_length > 128) _length = 128; // Ensure it respects typical bounds
-    } else if (_selectedStrategy is PassphrasePasswordStrategy) {
-      if (_length < 4) _length = 4;
-      if (_length > 8) _length = 8;
-    } else if (_selectedStrategy is MemorablePasswordStrategy) {
-      if (_length < 4) _length = 4;
-      if (_length > 8) _length = 8;
-    } else if (_selectedStrategy is PronounceablePasswordStrategy) {
-      if (_length < 8) _length = 8;
-      if (_length > 20) _length = 20;
-    } else if (_selectedStrategy is CustomPinStrategy) {
-      if (_length < 4) _length = 4;
-      if (_length > 12) _length = 12;
-    }
+  void _clampLengthToPolicy() {
+    double tempLength = _length;
+
+    // Always fall within the newly bounded UI layout constraints instead
+    final double safeMin = sliderMinLength;
+    final double safeMax = sliderMaxLength;
+
+    if (tempLength < safeMin) tempLength = safeMin;
+    if (tempLength > safeMax) tempLength = safeMax;
+
+    _length = tempLength;
+  }
+
+  void setStrategyConfig(AppStrategyConfig config) {
+    _selectedStrategyConfig = config;
+    if (_length < config.minLength) _length = config.minLength;
+    if (_length > config.maxLength) _length = config.maxLength;
+    _clampLengthToPolicy();
     generatePassword();
   }
 
   void setLength(double value) {
     _length = value;
+    _clampLengthToPolicy();
     generatePassword();
   }
 
@@ -374,11 +400,13 @@ class GeneratorState extends ChangeNotifier {
 
   void togglePolicyEnabled(bool value) {
     _usePolicy = value;
+    _clampLengthToPolicy();
     generatePassword();
   }
 
   void toggleCorporatePolicy(bool value) {
     _useCorporatePolicy = value;
+    _clampLengthToPolicy();
     generatePassword();
   }
 
@@ -387,6 +415,7 @@ class GeneratorState extends ChangeNotifier {
     if (_usePolicyMaxLength && _policyMaxLength < _policyMinLength) {
       _policyMaxLength = _policyMinLength;
     }
+    _clampLengthToPolicy();
     generatePassword();
   }
 
@@ -395,11 +424,13 @@ class GeneratorState extends ChangeNotifier {
     if (value && _policyMaxLength < _policyMinLength) {
       _policyMaxLength = _policyMinLength;
     }
+    _clampLengthToPolicy();
     generatePassword();
   }
 
   void setPolicyMaxLength(double value) {
     _policyMaxLength = value;
+    _clampLengthToPolicy();
     generatePassword();
   }
 

@@ -26,9 +26,13 @@ class PronounceableStrategyControls extends StatelessWidget {
               flex: 2,
               child: Slider(
                 value: state.length,
-                min: 8,
-                max: 20,
-                divisions: 12,
+                min: state.sliderMinLength,
+                max: state.sliderMaxLength,
+                divisions:
+                    (state.sliderMaxLength - state.sliderMinLength).round() > 0
+                        ? (state.sliderMaxLength - state.sliderMinLength)
+                            .round()
+                        : 1,
                 label: state.length.round().toString(),
                 onChanged: state.setLength,
               ),

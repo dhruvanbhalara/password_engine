@@ -27,9 +27,13 @@ class RandomStrategyControls extends StatelessWidget {
               child: Slider(
                 key: const Key('random_length_slider'),
                 value: state.length,
-                min: 16,
-                max: 128,
-                divisions: 112,
+                min: state.sliderMinLength,
+                max: state.sliderMaxLength,
+                divisions:
+                    (state.sliderMaxLength - state.sliderMinLength).round() > 0
+                        ? (state.sliderMaxLength - state.sliderMinLength)
+                            .round()
+                        : 1,
                 label: state.length.round().toString(),
                 onChanged: state.setLength,
               ),

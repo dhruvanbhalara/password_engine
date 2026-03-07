@@ -23,8 +23,9 @@ class MemorablePasswordStrategy implements IPasswordGenerationStrategy {
   String generate(PasswordGeneratorConfig config) {
     validate(config);
 
+    final wordCount = config.extra['wordCount'] as int? ?? config.length;
     List<String> passwordWords = [];
-    for (int i = 0; i < config.length; i++) {
+    for (int i = 0; i < wordCount; i++) {
       String word = words[_random.nextInt(words.length)];
       if (capitalize) {
         word = word[0].toUpperCase() + word.substring(1);

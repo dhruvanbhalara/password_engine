@@ -65,10 +65,14 @@ class _PasswordExampleState extends State<PasswordExample>
 
   void _onStateChanged() {
     if (_state.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_state.errorMessage!)),
-      );
-      _state.clearError();
+      final errorMessage = _state.errorMessage!;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+        _state.clearError();
+      });
     }
 
     if (_state.password.value != _lastPassword) {

@@ -19,15 +19,15 @@ class PronounceablePasswordStrategy implements IPasswordGenerationStrategy {
   String generate(PasswordGeneratorConfig config) {
     validate(config);
 
-    String password = '';
+    final buffer = StringBuffer();
     for (int i = 0; i < config.length; i++) {
       if (i % 2 == 0) {
-        password += _consonants[_random.nextInt(_consonants.length)];
+        buffer.write(_consonants[_random.nextInt(_consonants.length)]);
       } else {
-        password += _vowels[_random.nextInt(_vowels.length)];
+        buffer.write(_vowels[_random.nextInt(_vowels.length)]);
       }
     }
-    return password;
+    return buffer.toString();
   }
 
   @override

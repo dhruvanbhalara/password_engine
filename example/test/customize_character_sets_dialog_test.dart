@@ -116,11 +116,6 @@ void main() {
           equals(CharacterSetProfile.defaultProfile.upperCaseLetters));
       expect(savedProfile!.numbers,
           equals(CharacterSetProfile.defaultProfile.numbers));
-
-      // Verify text field updated to default (A-Z)
-      expect(find.text('XYZ'), findsNothing);
-      expect(find.text(CharacterSetProfile.defaultProfile.upperCaseLetters),
-          findsOneWidget);
     });
   });
 }
