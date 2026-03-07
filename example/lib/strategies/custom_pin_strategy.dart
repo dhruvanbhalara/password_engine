@@ -12,6 +12,8 @@ class CustomPinStrategy implements IPasswordGenerationStrategy {
     validate(config);
 
     final prefix = config.extra['prefix'] as String? ?? 'USER';
+    final numericLength =
+        config.extra['numericLength'] as int? ?? config.length;
     final random = Random.secure();
     final buffer = StringBuffer();
 
@@ -19,7 +21,7 @@ class CustomPinStrategy implements IPasswordGenerationStrategy {
     buffer.write('$prefix-');
 
     // Generate numeric part
-    for (var i = 0; i < config.length; i++) {
+    for (var i = 0; i < numericLength; i++) {
       buffer.write(random.nextInt(10));
     }
 

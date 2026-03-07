@@ -27,9 +27,13 @@ class MemorableStrategyControls extends StatelessWidget {
               child: Slider(
                 key: const Key('memorable_length_slider'),
                 value: state.length,
-                min: 4,
-                max: 8,
-                divisions: 4,
+                min: state.sliderMinLength,
+                max: state.sliderMaxLength,
+                divisions:
+                    (state.sliderMaxLength - state.sliderMinLength).round() > 0
+                        ? (state.sliderMaxLength - state.sliderMinLength)
+                            .round()
+                        : 1,
                 label: state.length.round().toString(),
                 onChanged: state.setLength,
               ),

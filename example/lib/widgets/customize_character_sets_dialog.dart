@@ -152,19 +152,6 @@ class _CustomizeCharacterSetsDialogState
         TextButton(
           onPressed: () {
             const profile = CharacterSetProfile.defaultProfile;
-            setState(() {
-              _upperCaseController.text = profile.upperCaseLetters;
-              _lowerCaseController.text = profile.lowerCaseLetters;
-              _numbersController.text = profile.numbers;
-              _specialCharsController.text = profile.specialCharacters;
-              _upperCaseNonAmbiguousController.text =
-                  profile.upperCaseLettersNonAmbiguous;
-              _lowerCaseNonAmbiguousController.text =
-                  profile.lowerCaseLettersNonAmbiguous;
-              _numbersNonAmbiguousController.text = profile.numbersNonAmbiguous;
-              _specialCharsNonAmbiguousController.text =
-                  profile.specialCharactersNonAmbiguous;
-            });
             widget.onSave(profile);
             Navigator.of(context).pop();
           },

@@ -37,9 +37,13 @@ class CustomPinStrategyControls extends StatelessWidget {
               flex: 2,
               child: Slider(
                 value: state.length,
-                min: 4,
-                max: 12,
-                divisions: 8,
+                min: state.sliderMinLength,
+                max: state.sliderMaxLength,
+                divisions:
+                    (state.sliderMaxLength - state.sliderMinLength).round() > 0
+                        ? (state.sliderMaxLength - state.sliderMinLength)
+                            .round()
+                        : 1,
                 label: state.length.round().toString(),
                 onChanged: state.setLength,
               ),

@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:password_engine/password_engine.dart';
 
 import '../state/generator_state.dart';
-import '../strategies/custom_pin_strategy.dart';
-import '../strategies/memorable_password_strategy.dart';
-import '../strategies/pronounceable_password_strategy.dart';
+import '../strategies/app_strategy_config.dart';
 
 class PasswordOptions extends StatelessWidget {
   final GeneratorState state;
@@ -13,21 +10,6 @@ class PasswordOptions extends StatelessWidget {
     super.key,
     required this.state,
   });
-
-  String _getStrategyName(IPasswordGenerationStrategy strategy) {
-    if (strategy is RandomPasswordStrategy) {
-      return 'Random';
-    } else if (strategy is PassphrasePasswordStrategy) {
-      return 'Passphrase';
-    } else if (strategy is MemorablePasswordStrategy) {
-      return 'Memorable';
-    } else if (strategy is PronounceablePasswordStrategy) {
-      return 'Pronounceable';
-    } else if (strategy is CustomPinStrategy) {
-      return 'Custom PIN';
-    }
-    return 'Unknown';
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,23 +40,28 @@ class PasswordOptions extends StatelessWidget {
               labelText: 'Generation Strategy',
               border: OutlineInputBorder(),
             ),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<IPasswordGenerationStrategy>(
-                key: const Key('strategy_dropdown'),
-                value: state.selectedStrategy,
-                isDense: true,
-                items: state.strategies.map((strategy) {
-                  return DropdownMenuItem<IPasswordGenerationStrategy>(
-                    value: strategy,
-                    child: Text(_getStrategyName(strategy)),
-                  );
-                }).toList(),
-                onChanged: (strategy) {
-                  if (strategy != null) {
-                    state.setStrategy(strategy);
-                  }
-                },
-              ),
+            child: ListenableBuilder(
+              listenable: state,
+              builder: (context, _) {
+                return DropdownButtonHideUnderline(
+                  child: DropdownButton<AppStrategyConfig>(
+                    key: const Key('strategy_dropdown'),
+                    value: state.selectedStrategyConfig,
+                    isDense: true,
+                    items: state.strategies.map((config) {
+                      return DropdownMenuItem<AppStrategyConfig>(
+                        value: config,
+                        child: Text(config.name),
+                      );
+                    }).toList(),
+                    onChanged: (config) {
+                      if (config != null) {
+                        state.setStrategyConfig(config);
+                      }
+                    },
+                  ),
+                );
+              },
             ),
           ),
           /* strategyControls logic has moved down to StrategyControlsPanel invoked from main.dart explicitly, so this widget only holds the dropdown */
