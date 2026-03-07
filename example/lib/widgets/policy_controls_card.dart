@@ -99,16 +99,36 @@ class PolicyControlsCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                  _buildRequirementTile('Require Uppercase',
-                      state.policyRequireUppercase, CharacterType.upper),
-                  _buildRequirementTile('Require Lowercase',
-                      state.policyRequireLowercase, CharacterType.lower),
-                  _buildRequirementTile('Require Numbers',
-                      state.policyRequireNumber, CharacterType.numbers),
-                  _buildRequirementTile('Require Special Characters',
-                      state.policyRequireSpecial, CharacterType.special),
-                  _buildRequirementTile('Allow Spaces', state.policyAllowSpaces,
-                      CharacterType.spaces),
+                  PolicyRequirementTile(
+                    title: 'Require Uppercase',
+                    value: state.policyRequireUppercase,
+                    type: CharacterType.upper,
+                    state: state,
+                  ),
+                  PolicyRequirementTile(
+                    title: 'Require Lowercase',
+                    value: state.policyRequireLowercase,
+                    type: CharacterType.lower,
+                    state: state,
+                  ),
+                  PolicyRequirementTile(
+                    title: 'Require Numbers',
+                    value: state.policyRequireNumber,
+                    type: CharacterType.numbers,
+                    state: state,
+                  ),
+                  PolicyRequirementTile(
+                    title: 'Require Special Characters',
+                    value: state.policyRequireSpecial,
+                    type: CharacterType.special,
+                    state: state,
+                  ),
+                  PolicyRequirementTile(
+                    title: 'Allow Spaces',
+                    value: state.policyAllowSpaces,
+                    type: CharacterType.spaces,
+                    state: state,
+                  ),
                 ],
               ],
               const Divider(height: 1),
@@ -127,8 +147,24 @@ class PolicyControlsCard extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildRequirementTile(String title, bool value, CharacterType type) {
+class PolicyRequirementTile extends StatelessWidget {
+  final String title;
+  final bool value;
+  final CharacterType type;
+  final GeneratorState state;
+
+  const PolicyRequirementTile({
+    super.key,
+    required this.title,
+    required this.value,
+    required this.type,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return CheckboxListTile(
       title: Text(title),
       value: value,
