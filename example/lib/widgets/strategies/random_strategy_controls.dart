@@ -45,14 +45,34 @@ class RandomStrategyControls extends StatelessWidget {
           spacing: 12,
           runSpacing: 8,
           children: [
-            _buildFilterChip(context, 'Uppercase', state.useUpperCase,
-                CharacterType.upper, const Key('checkbox_uppercase')),
-            _buildFilterChip(context, 'Lowercase', state.useLowerCase,
-                CharacterType.lower, const Key('checkbox_lowercase')),
-            _buildFilterChip(context, 'Numbers', state.useNumbers,
-                CharacterType.numbers, const Key('checkbox_numbers')),
-            _buildFilterChip(context, 'Symbols', state.useSpecialChars,
-                CharacterType.special, const Key('checkbox_special_chars')),
+            StrategyFilterChip(
+              label: 'Uppercase',
+              selected: state.useUpperCase,
+              type: CharacterType.upper,
+              key: const Key('checkbox_uppercase'),
+              state: state,
+            ),
+            StrategyFilterChip(
+              label: 'Lowercase',
+              selected: state.useLowerCase,
+              type: CharacterType.lower,
+              key: const Key('checkbox_lowercase'),
+              state: state,
+            ),
+            StrategyFilterChip(
+              label: 'Numbers',
+              selected: state.useNumbers,
+              type: CharacterType.numbers,
+              key: const Key('checkbox_numbers'),
+              state: state,
+            ),
+            StrategyFilterChip(
+              label: 'Symbols',
+              selected: state.useSpecialChars,
+              type: CharacterType.special,
+              key: const Key('checkbox_special_chars'),
+              state: state,
+            ),
           ],
         ),
         const SizedBox(height: 16),
@@ -66,11 +86,25 @@ class RandomStrategyControls extends StatelessWidget {
       ],
     );
   }
+}
 
-  Widget _buildFilterChip(BuildContext context, String label, bool selected,
-      CharacterType type, Key key) {
+class StrategyFilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final CharacterType type;
+  final GeneratorState state;
+
+  const StrategyFilterChip({
+    super.key,
+    required this.label,
+    required this.selected,
+    required this.type,
+    required this.state,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return FilterChip(
-      key: key,
       label: Text(label),
       selected: selected,
       onSelected: (val) => state.setUseCase(val, type),
