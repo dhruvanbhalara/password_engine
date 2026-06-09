@@ -45,5 +45,24 @@ void main() {
       expect(''.hasUnicode, isFalse);
       expect(('a' * 1000 + '\u03C0').hasUnicode, isTrue);
     });
+
+    group('containsAnyOf', () {
+      test('returns false on empty charset pool', () {
+        expect('abc'.containsAnyOf(''), isFalse);
+      });
+
+      test('returns false when no characters match', () {
+        expect('abc'.containsAnyOf('xyz'), isFalse);
+      });
+
+      test('returns true when character matches', () {
+        expect('abc'.containsAnyOf('cxz'), isTrue);
+      });
+
+      test('handles unicode characters correctly', () {
+        expect('abc\u{1F60A}'.containsAnyOf('\u{1F60A}'), isTrue);
+        expect('abc\u{1F60A}'.containsAnyOf('\u{1F60B}'), isFalse);
+      });
+    });
   });
 }

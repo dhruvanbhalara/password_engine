@@ -1,6 +1,6 @@
 name: password_engine
 description: "A comprehensive and extensible password generation library for Dart and Flutter"
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/dhruvanbhalara/password_engine
 repository: https://github.com/dhruvanbhalara/password_engine
 issue_tracker: https://github.com/dhruvanbhalara/password_engine/issues

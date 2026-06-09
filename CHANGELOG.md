@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- **Fix**: Make character set lookup faster in `containsAnyOf`.
+  - Used a Set of runes instead of checking characters linearly.
+  - Added unit tests for empty inputs, mismatches, and Unicode characters.
+
 ## 1.0.0
 
 - Initial release of `password_engine`.
